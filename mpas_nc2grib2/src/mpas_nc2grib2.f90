@@ -285,7 +285,11 @@ program mpas_nc2grib2
    loni=lon(0)
    dlon=(lon(nlon-1)-lon(0))/(nlon-1)
    lonf=lon(nlon-1)
-   
+   if (lonf==360.0) then 
+     nlon=nlon-1
+     lonf=lon(nlon-1)
+
+   end if 
 
    !loni=lon(0)+dlon/2.0
    !lonf=dlon*(nlon-1)+loni
