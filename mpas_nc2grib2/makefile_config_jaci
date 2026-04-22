@@ -1,2 +1,1 @@
-
-F90=gfortran -O3 -fno-range-check -ffree-form  -fopenmp      # COMPILACAO COM gfortran e OPENMP (otimizacao 03)
+F90=ftn -f free -h omp   

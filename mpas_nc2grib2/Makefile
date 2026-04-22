@@ -8,7 +8,7 @@ include ./makefile_config
 BIN=./bin/
 DEL=\rm
 SHARED=./shared
-
+$(info $(ECCODES_DIR))
 # executavel
 
 NC2GRIB2   =$(BIN)mpas_nc2grib2.x
