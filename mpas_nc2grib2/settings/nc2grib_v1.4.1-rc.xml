@@ -218,7 +218,18 @@
                 </template>
         </element>-->
 	
-        <element NCVar="lh" cfVarName="slhf" Name="Surface latent heat flux w/kg" >
+        <!--<element NCVar="lh" cfVarName="slhf" Name="Surface latent heat flux w/m2" >
+            <template def="0">
+                    <id discipline="0" />
+                    <id parameterCategory="0" />
+                    <id parameterNumber="10" />
+                    <id typeOfFirstFixedSurface ="1" />
+                    <id typeOfStatisticalProcessing = "1" />  Accum = Accumulation table 4.10
+                    <id scaleFactorOfFirstFixedSurface ="0" />
+                    <id scaledValueOfFirstFixedSurface = "0"/>
+                </template>
+        </element> -->
+           <element NCVar="lh" cfVarName="lhtfl" Name="Latent heat net flux w/m2" >
             <template def="0">
                     <id discipline="0" />
                     <id parameterCategory="0" />

@@ -7,8 +7,8 @@ import os
 # Default parameter
 discipline=0
 category=0
-#version='28'
-version='4'
+version='28'
+#version='4'
 definition_path= os.environ["ECCODES_DEFINITION_PATH"]+"/grib2/tables/"+version
 
 print ("-----------------------------------------------------------")
@@ -19,6 +19,7 @@ print ("Definition Path=",definition_path)
 print ("-----------------------------------------------------------")
 print ("4.2 - Parameter number by product discipline and parameter category")
 print ("4.5 - Fixed surface types and units")
+print ("4.10- Type of statistical processing")
 
 op=float(input("Enter option to continue:"))
 
@@ -65,3 +66,12 @@ if (op==4.5) :
     print(content)
     file.close()
 
+if (op==4.10) :
+    filename=definition_path+"/4.10.table"
+    print ("-----------------------------------------------------------")
+    print ("table=",filename)
+    print ("-----------------------------------------------------------")
+    file = open(filename, "r")
+    content = file.read()
+    print(content)
+    file.close()
