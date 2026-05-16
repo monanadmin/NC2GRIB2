@@ -1,1 +1,2 @@
-F90=ftn -f free -h omp   
+F90=ftn -f free
+NFDIR=${NETCDF_DIR}
