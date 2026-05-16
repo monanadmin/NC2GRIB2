@@ -1,2 +1,4 @@
-F90=ftn -f free
+#F90=ftn -f free
+#F90=gfortran -O3 -fno-range-check -ffree-form -fopenmp 
+F90=ftn -O3 -fno-range-check -ffree-form -fopenmp
 NFDIR=${NETCDF_DIR}

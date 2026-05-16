@@ -8,7 +8,7 @@ include ./makefile_config
 BIN=./bin/
 DEL=\rm
 SHARED=./shared
-$(info $(ECCODES_DIR))
+$(info 'ECCODES_DIR='$(ECCODES_DIR))
 # executavel
 
 NC2GRIB2   =$(BIN)mpas_nc2grib2.x
@@ -32,7 +32,7 @@ all:   $(NC2GRIB2) #$(TEST)
 
 $(NC2GRIB2) : $(NC2GRIB2F) $(OBJ) mgrib_interface.o msort.o stringflib.o datelib.o xmlparse.o
 	mkdir -p $(BIN)
-	$(F90) -o $@ $(NC2GRIB2F) $(OBJ) -I$(NFDIR)/include -L$(NFDIR)/lib -lnetcdff -I$(ECCODES_DIR)/include -L$(ECCODES_DIR)/lib -Wl,-rpath,$(ECCODES_DIR)/lib -leccodes_f90 -leccodes
+	$(F90) -o $@ $(NC2GRIB2F) $(OBJ) -I$(NFDIR)/include -L$(NFDIR)/lib -lnetcdff -I$(ECCODES_DIR)/include -L$(ECCODES_DIR)/lib64 -Wl,-rpath,$(ECCODES_DIR)/lib -leccodes_f90 -leccodes
 
 stringflib.o : $(STRINGFLIBF) 
 	$(F90) -c   $(STRINGFLIBF) 

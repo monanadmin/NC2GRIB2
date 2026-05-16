@@ -22,6 +22,7 @@
   ### a) ECCODES compilation
         module load gcc-native/13.2
         module load cray-netcdf-hdf5parallel/4.9.0.15
+        module load libfabric
         mkdir -p build
         cd build
         export PREFIX=<path to local of ECCODES instalation>
@@ -31,7 +32,7 @@
 
         export NFDIR=${NETCDF_DIR}
         export ECCODES_DIR=<path to local of ECCODES instalation>
-  
+        export ECCODES_DEFINITION_PATH=<path to local of ECCODES deffinitions>
 
   ### c) MPAS_NC2GRIB2 compilation
         module load cray-netcdf-hdf5parallel/4.9.0.15
