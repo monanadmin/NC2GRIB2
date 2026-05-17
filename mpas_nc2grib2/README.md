@@ -71,12 +71,7 @@ The scripts runs MPAS_NC2GRIB to convert the MPAS_FILE in datain to GRIB2 file i
   - Type **ls -ltr ./dataout** to verify if the grib files were generated 
   - 3-grib_decoding_test.sh: This script do the inverse process, i.e. decoding the grib file to nc as well as into other formats. 
 
-## 4.2 - example2 - Specific example to be use as test in egeon.cptec.inpe.br
- 
-In the **examples/example2** you will find some scripts to run mpas_nc2grib2.x on Egeon to process data form **MPAS_CONVERT**. In these scripts, the path to access the MONAN data results in netcdf as well as the path to the directory for grib2 have been hard-coded defined. Therefore, before using these scripts, it is recommended to edit and modify these scripts  to make the necessary adjustments.
 
-## 4.3 Others examples.
-  See others examples in the examples directory
 
 
 ## 5 - USER GUIDE ##
