@@ -5,11 +5,22 @@ if [[ $a == *"egeon"* ]]; then
 	module load cdo-2.0.4-gcc-9.4.0-bjulvnd
 	module load netcdf-fortran
 	export NFDIR=/opt/ohpc/pub/libs/gnu9/openmpi4/netcdf-fortran/4.5.3
+	export NC2GRIB_DIR=../..
+	export GRIBMAP=gribmap
+elif [[ $a == *"ian"* ]]; then
+    module load cray-netcdf-hdf5parallel/4.9.0.15
+    module load libfabric
+    module load grads/2.2.1.oga.1
+    export NFDIR=${NETCDF_DIR}
+    export NC2GRIB_DIR=../..
+    export GASCRP=/p/app/opengrads/2.2.1.oga.1/Resources/Scripts
+    export GRIBMAP=gribmap
 else
-	export NC2GRIB_DIR=../
+	export NC2GRIB_DIR=../..
+	export GRIBMAP=gribmap
 fi
-GRIBMAP=/home/sergio.ferreira/GRADS/grads_2.0.a9/bin/gribmap
-GRIBMAP=gribmap
+
+
 DIR=./dataout
 start_time=2024070900
 cd $DIR
