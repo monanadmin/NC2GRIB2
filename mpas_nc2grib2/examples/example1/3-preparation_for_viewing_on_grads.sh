@@ -11,10 +11,12 @@ elif [[ $a == *"ian"* ]]; then
     module load cray-netcdf-hdf5parallel/4.9.0.15
     module load libfabric
     module load grads/2.2.1.oga.1
+    module load wgrib2/3.8.0
     export NFDIR=${NETCDF_DIR}
     export NC2GRIB_DIR=../..
     export GASCRP=/p/app/opengrads/2.2.1.oga.1/Resources/Scripts
     export GRIBMAP=gribmap
+    export G2CTL=../../../extensions/g2ctl
 else
 	export NC2GRIB_DIR=../..
 	export GRIBMAP=gribmap
@@ -33,7 +35,7 @@ for fff in 000 003 006 012 024 ; do
   # generating ctl and idx files
   #
   cd $DIR
-  g2ctl -verf   $INPUT_GRIB > $OUTPUT_CTL
+  $G2CTL -verf   $INPUT_GRIB > $OUTPUT_CTL
   $GRIBMAP -i $OUTPUT_CTL
   
 
