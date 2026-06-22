@@ -102,7 +102,7 @@ program mpas_nc2grib2
   !-----------
   
    call get_parameter(namearg,arg,nargs)
-   conftable="nc2grib.2.xml"
+   conftable=""
    verbose=0                                                                          !
       do i=1, nargs 
         select case (namearg(i))
