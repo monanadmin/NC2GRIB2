@@ -34,8 +34,12 @@ module mgrib_tables
      stop
    end if 
    
+   if (len_trim(parm_table)==0) then
+     table_name=trim(nc2grib_dir)//"/settings/nc2grib.2.xml"
+   else
+     table_name=trim(parm_table)
+   end if
 
-   table_name=trim(nc2grib_dir)//"/settings/"//trim(parm_table)
    print *,"table_name=",trim(table_name)
    open(14,file=table_name,status='old')
       read(14,'(a)',end=1919) line
