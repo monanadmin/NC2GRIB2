@@ -17,63 +17,6 @@ module mgrib_tables
  character(len=1024)::nc2grib_dir
  contains
 
- subroutine init_parm(parm_table)
-   character(len=*),intent(in)::parm_table
-
-   character(len=1024)::table_name
-   integer::i
-   character(len=256)::line
-   character(len=32),dimension(1:20)::values
-   integer::nv
-   integer::p
-   i=0
-   call getenv("NC2GRIB_DIR",nc2grib_dir)
-   if (len_trim(nc2grib_dir)==0) then 
-     print *,"Error! NC2GRIB_DIR environment variable not found"
-     print *,"       please set NC2GRIB_DIR with PATH where MPAS_NC2GRIB is"
-     stop
-   end if 
-   
-   if (len_trim(parm_table)==0) then
-     table_name=trim(nc2grib_dir)//"/settings/nc2grib.2.xml"
-   else
-     table_name=trim(parm_table)
-   end if
-
-   print *,"table_name=",trim(table_name)
-   open(14,file=table_name,status='old')
-      read(14,'(a)',end=1919) line
-19    read(14,'(a)',end=1919) line
-      p=index(line,"#")
-      if (p==1) line="" 
-
-!   Sequence:      
-!      1        2        3         4           5       6                7     8          9         10            11
-!   NC_Name,cfVarName,Templete, Discipline,Category,ParameterNumber,tflevel,sValueFFS,sFactorFFS,Time_interval,Varname,
-
-      
-      if (p>1)line=line(1:p)
-       call split(line,",",values,nv)
-       if (nv==11) then
-          i=i+1
-          var(i)%Template=val(values(3))
-          var(i)%Discipline=val(values(4))
-          var(i)%pCat=val(values(5))
-          var(i)%pNum=val(values(6))
-          var(i)%tflevel=val(values(7))
-          var(i)%cfVarName=values(2)
-          var(i)%ncVarName=values(1)
-          var(i)%VarName=values(11)
-          var(i)%sFactor_FFS=val(values(9)) !scaleFactorOfFirstFixedSurface
-          var(i)%sValue_FFS=val(values(8)) !scaleValuesOfFirstFixedSurface
-	      var(i)%time_interval=val(values(10)) ! Time interval
-          nvar=i
-       end if
-       goto 19
-1919   continue
-
-   close(14)
-end subroutine
 
 subroutine init_parm2(parm_table)
    character(len=*),intent(in)::parm_table
@@ -97,16 +40,10 @@ subroutine init_parm2(parm_table)
    i=0
    op=.false.
    tablesVersion_default=4
-   call getenv("NC2GRIB_DIR",nc2grib_dir)
-   if (len_trim(nc2grib_dir)==0) then
-     print *,"Error! NC2GRIB_DIR environment variable not found"
-     print *,"       please set NC2GRIB_DIR with PATH where MPAS_NC2GRIB is"
-     stop
-   end if
 
 
-  table_name=trim(nc2grib_dir)//"/settings/"//trim(parm_table)
-   print *,"table_name=",trim(table_name)
+  table_name=trim(parm_table)
+   print *,":MGRIB_TABLES:table_name=",trim(table_name)
  
  ! Assign the xml-filename to fname and open the file
  mustread = .true.

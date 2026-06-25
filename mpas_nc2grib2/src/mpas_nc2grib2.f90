@@ -24,7 +24,7 @@ program mpas_nc2grib2
   use stringflib
   use datelib
   use mgrib_interface
-  use mgrib_tables, only :init_parm,init_parm2, var,svar=>nvar,get_cfVarName_index,get_ncVarName_index,tablesVersion_default
+  use mgrib_tables, only :init_parm2, var,svar=>nvar,get_cfVarName_index,get_ncVarName_index,tablesVersion_default
   use metlib, only :rseca, saturation_Adiabatic,temperature_lapse_rate,w2omega,tvirtw_kelvin
 
   implicit none
@@ -44,6 +44,7 @@ program mpas_nc2grib2
   character(len=4)             ::seqdim  ! Sequence of dimensions (x,y,z etc)
   character(len=15)            ::Clat,Clon,Clev
   character(len=60)            ::time_unit
+  character(len=1024)          ::nc2grib_dir
   integer                      ::ilat,ilon,ilev,itim
   integer::nt
   integer::vv
@@ -81,7 +82,7 @@ program mpas_nc2grib2
   character (len = 1024)           ::OUTFILE, OUTFILE2,outfile_c
   character(len=1),dimension(100)  ::namearg   !. Nome dos argumentos!
   character(len=256),dimension(100)::arg       !.argumentos!
-  real  ::diff                                !. Auxiliar variable for differences calculus 
+  real  ::diff                                 !. Auxiliar variable for differences calculus 
   real  ::maxd2,d2   
   integer::nargs                               !. numero de argumentos efetivamente passados!
   integer::i,j,k                               !. Variavel auxiliar!
@@ -96,13 +97,24 @@ program mpas_nc2grib2
   X4=0
   op=0                                                                   !
   ifct=0
+
+
   
   !-----------
   ! welcomme 
   !-----------
-  
+   call getenv("NC2GRIB_DIR",nc2grib_dir)
+   if (len_trim(nc2grib_dir)==0) then
+     print *,":MPAS_NC2GRIB2: Warning! NC2GRIB_DIR environment variable not found"
+     call getcwd(nc2grib_dir)
+     conftable=trim(nc2grib_dir)//"/nc2grib.2.xml"
+   else
+     conftable=trim(nc2grib_dir)//"/settings/nc2grib.2.xml"
+   end if 
+
+   
    call get_parameter(namearg,arg,nargs)
-   conftable=""
+
    verbose=0                                                                          !
       do i=1, nargs 
         select case (namearg(i))
@@ -122,8 +134,10 @@ program mpas_nc2grib2
             case ("v")
               verbose=val(arg(i))
 	    case ("c")
-	      conftable=trim(arg(i))	
-            case default
+	      conftable=trim(nc2grib_dir)//"/settings/"//trim(arg(i))
+        case ("C")
+           conftable=trim(arg(i))
+        case default
                 
 	    end select
 	!
@@ -131,7 +145,7 @@ program mpas_nc2grib2
        print *,"|--------------------------------------------------------------+"
        print *,"| mpas_nc2grib2.x                                              |"
        print *,"|--------------------------------------------------------------+"
-       print *,"| MCTI-INPE (2025-10-22) V. 2.1                                |"
+       print *,"| MCTI-INPE (2025-10-22) V. 2.2                                |"
        print *,"|--------------------------------------------------------------+"
 
       if (x1*x2*x3==0) then
@@ -147,10 +161,14 @@ program mpas_nc2grib2
        print *,"|        :1=  grid_ccsds                                       |"
        print *,"|        (Default: 0)                                          |"
        print *,"|                                                              |"
-       print *,"|    -c :<Configuration table name>                            |"
+       print *,"|    -c :<Configuration table name in settings folder >        |"
        print *,"|        (Default= nc2grib.2.xml)                              |"
+       print *,"|     or                                                       |"
+       print *,"|                                                              |"
+       print *,"|    -C :<Complete path to the configuration table>            |"
+       print *,"|                                                              |"
        print *,"|--------------------------------------------------------------+"
-
+       print *,"| settings=",conftable
 	stop
       endif 
                                                                        !
