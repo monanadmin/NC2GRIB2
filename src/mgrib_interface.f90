@@ -267,8 +267,8 @@ module mgrib_interface
 				values(nb)=par(i,j)
 			end do
 		end do
-	call codes_set(igrib,"bitsPerValue",parm_id%bitsPerValue) 
-	!call codes_set(igrib,"decimalScaleFactor",0)  !No Effect 
+	if (parm_id%bitsPerValue/=32) call codes_set(igrib,"bitsPerValue",parm_id%bitsPerValue)
+	!call codes_set(igrib,"decimal`ScaleFactor",0)  !No Effect
 	call codes_set(igrib,"values",values)
 	deallocate(values)
 	call codes_write(igrib,out1)

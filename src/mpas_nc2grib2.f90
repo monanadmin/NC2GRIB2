@@ -486,9 +486,10 @@ program mpas_nc2grib2
     if (verbose>2)  print *,"itime=",grib_def%itime
     step=ifct
 
-!-----------------------------  
+!------------------------------
 ! Saving data in grib2 format
 !------------------------------
+!{ *1*
     outfile_c=current_filename(OUTFILE,start_date,ifct);
     print *,":MPAS_NC2GRIB2: output filename=",trim(outfile_c)
     call openw_grib(outfile_c,grib_def,tablesVersion_default,sample)
@@ -535,6 +536,10 @@ program mpas_nc2grib2
     call close_grib()
   print *,"*** MPAS_NC2GRIB2: DONE *** "
   print *,""
+
+
+!} *1*
+
 
   deallocate (lat,lon,lev)
   deallocate (grib_def%lon,grib_def%lat,grib_def%lev)
