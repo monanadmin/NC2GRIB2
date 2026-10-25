@@ -291,7 +291,8 @@ end subroutine
 ! to include the condification of bitmap in grib2
 !------------------------------------------------------------------------------
 ! Note: bitmap(i,j) is not been used because EcCodes performs it
-! internally for enconde. It is here just for future uses
+! internally for enconde using current_missing value.
+! It is here just for future uses
 !-----------------------------------------------------------------------------
 subroutine set_bitmap(data,missing,bitmap)
  !{ Interface Variables
