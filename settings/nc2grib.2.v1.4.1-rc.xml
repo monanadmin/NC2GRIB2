@@ -61,6 +61,18 @@
 		    <id bitsPerValue ="15" />
                 </template>
         </element>
+           <element NCVar="cldfrac_tot_UPP" cfVarName="tcc" Name="Total Cloud Cover" >
+            <template def="0">
+                    <id discipline="0" />
+                    <id parameterCategory="6" />
+                    <id parameterNumber="1" />
+                    <id typeOfFirstFixedSurface ="1" />
+                    <id typeOfSecondFixedSurface = "8"/>
+                    <id scaledValueOfFirstFixedSurface = "0"/>
+                    <id scaleFactorOfFirstFixedSurface ="0" />
+		            <id bitsPerValue ="8" />
+                </template>
+        </element>
         <element NCVar="precipw" cfVarName="pwat" Name="Precipitable water (kg m-2)" >
              <template def="0">
                  <id discipline="0" />
@@ -68,6 +80,7 @@
                  <id parameterNumber="3" />
              </template>
         </element>
+
         <element NCVar="u10" cfVarName="u10" Name="10 metre U wind component" >
             <template def="0">
                     <id discipline="0" />
