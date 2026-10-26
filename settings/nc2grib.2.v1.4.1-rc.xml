@@ -284,6 +284,7 @@
                     <id typeOfFirstFixedSurface ="1" />
                     <id scaleFactorOfFirstFixedSurface ="0" />
                     <id scaledValueOfFirstFixedSurface = "0"/>
+		    <id typeOfStatisicalProcessing  = "0"/>     <!-- 1 acumulated 0 instantaneop -->
                     <id bitsPerValue ="16" />
                 </template>
         </element>
@@ -295,9 +296,23 @@
                     <id typeOfFirstFixedSurface ="1" />
                     <id scaleFactorOfFirstFixedSurface ="0" />
                     <id scaledValueOfFirstFixedSurface = "0"/>
+		    <id typeOfStatisicalProcessing  = "0"/>     <!-- 1 acumulated 0 instantaneop -->
                     <id bitsPerValue ="16" />
                 </template>
         </element>
+	 <element NCVar="acswdnb" cfVarName="acdswrf" Name=" accumulated all-sky downward surface shortwave radiation flux ( J m-2)" >
+            <template def="0">
+                    <id discipline="0" />
+                    <id parameterCategory="4" />
+                    <id parameterNumber="7" />
+                    <id typeOfFirstFixedSurface ="1" />
+                    <id scaleFactorOfFirstFixedSurface ="0" />
+                    <id scaledValueOfFirstFixedSurface = "0"/>
+		    <id typeOfStatisicalProcessing  = "1"/>     <!-- 1 acumulated 0 instantaneop -->
+                    <id bitsPerValue ="32" />
+                </template>
+        </element>
+	
        <!-- <element NCVar="hpbl" cfVarName="hpbl" Name="Planetary boundary layer height  (m)" >
             <template def="0">
                     <id discipline="0" />
@@ -320,6 +335,8 @@
 		    <id bitsPerValue ="24" />
                 </template>
         </element> -->
+	
+
 <element NCVar="cape" cfVarName="cape" Name="Convective available potential energy" >
             <template def="0">
                     <id discipline="0" />
