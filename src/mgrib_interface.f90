@@ -215,11 +215,11 @@ module mgrib_interface
 			elseif (parm_id%time_interval==0) then
 				call codes_set(igrib,"stepRange",step)
 			else   ! Accumulation since the start time
-			endStep=step 
-			write(stepRange,'("0-",i3)')endStep
-			call codes_set(igrib,"stepRange",stepRange)
-			call codes_set(igrib,"endStep",endStep)
-		endif 	
+			   endStep=step
+			   write(stepRange,'("0-",i3)')endStep
+			  call codes_set(igrib,"stepRange",stepRange)
+			  call codes_set(igrib,"endStep",endStep)
+		  endif
 		
 	!*** step type = "accuml, ave, instant
 	!*** codes_set__nc(Number of bit..... )
@@ -240,12 +240,20 @@ module mgrib_interface
 			SValue_FFS=0
 		end if
 		NB=Ni*Nj
+
 		call codes_set(igrib,"typeOfFirstFixedSurface",tlevel)
 		call codes_set(igrib,"scaleFactorOfFirstFixedSurface",SFactor_FFS)
 		call codes_set(igrib,"scaledValueOfFirstFixedSurface",SValue_FFS)
-		if (parm_id%tStatProc==1) then
-		 call codes_set(igrib,"typeOfStatisticalProcessing",1)
+
+		!--------------------------------
+		! Product definition Template 4.8
+		!---------------------------------
+		if (parm_id%template==8) then
+
+		 call codes_set(igrib,"typeOfStatisticalProcessing",parm_id%tStatProc)
+
 		end if
+
 		!call codes_set_size(igrib,"values",nb_values)
 	!}
 	!------------------------------------------------------------------------------------
