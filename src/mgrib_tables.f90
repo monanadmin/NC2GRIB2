@@ -123,8 +123,26 @@ subroutine init_parm2(parm_table,bitsPerValue_in)
 
       if ((var(i)%template==0).and.(op)) then !{
       !----------------------------------------
-      !  TEMPLATE 4.0 
+      ! PRODICT DEFINITION TEMPLATE 4.0
+      ! Analysis of forecast at a horizontal level
       !----------------------------------------
+      !Oct. Contents
+      !-10 Parameter category (see Code table 4.1)
+      !-11 Parameter number (see Code table 4.2)
+      !12 Type of generating process (see Code table 4.3)
+      !13 Background generating process identifier (defined by originating centre)
+      !14 Analysis or forecast generating process identifier (defined by originating centre)
+      !15–16 Hours of observational data cut–off after reference time (see Note)
+      !17 Minutes of observational data cut–off after reference time
+      !18 Indicator of unit of time range (see Code table 4.4)
+      !19–22Forecast time in units defined by octet 18
+      !-23 Type of first fixed surface (see Code table 4.5)
+      !-24 Scale factor of first fixed surface
+      !-25–28Scaled value of first fixed surface
+      !29 Type of second fixed surface (see Code table 4.5)
+      !30 Scale factor of second fixed surface
+      !31–34Scaled value of second fixed surface
+      !-------------------------------------------
         var(i)%bitsPerValue=Default_bitsPerValue
         do j=1,no_attribs
           ! write(*,*) i,"< template 4.0 >",trim(attribs(1,j)),'<=',trim(attribs(2,j))
@@ -134,17 +152,59 @@ subroutine init_parm2(parm_table,bitsPerValue_in)
           if (trim(attribs(1,j))=="typeOfFirstFixedSurface") var(i)%tflevel=val(attribs(2,j))
           if (trim(attribs(1,j))=="scaleFactorOfFirstFixedSurface") var(i)%sFactor_FFS=val(attribs(2,j))
           if (trim(attribs(1,j))=="scaledValueOfFirstFixedSurface") var(i)%sValue_FFS=val(attribs(2,j))
-          if (trim(attribs(1,j))=="typeOfStatisticalProcessing") var(i)%TStatProc=val(attribs(2,j))
+
 	  if (bitsPerValue_in==0) then 
 	  	if (trim(attribs(1,j))=="bitsPerValue") var(i)%bitsPerValue=val(attribs(2,j))
 	  end if 
           nvar=i
         enddo
          var(i)%time_interval=0 
+
       elseif((var(i)%template==8).and.(op)) then !}{
-         !----------------------------------------
-         !  TEMPLATE 4.8 
-         !----------------------------------------
+         !----------------------------------------------------------------------------------
+         !  PRODUCT DEFINITION TEMPLATE 4.8
+         !  – average, accumulation and/or extreme values or other statistically processed
+         !  values at a horizontal level or in a horizontal layer in a continuous or
+         ! non–continuous time interval
+         !----------------------------------------------------------------------------------
+         !17Minutes after reference time of data cut–off
+         !18Indicator of unit of time range (see Code table 4.4)
+         !19–22Forecast time in units defined by octet 18 (see Note 2)
+         !23Type of first fixed surface (see Code table 4.5)
+         !24Scale factor of first fixed surface
+         !25–28Scaled value of first fixed surface
+         !29Type of second fixed surface (see Code table 4.5)
+         !30Scale factor of second fixed surface
+         !31–34Scaled value of second fixed surface
+         !35–36Year
+         !37Month
+         !38Day
+         !39Hour
+         !40Minute
+         !41Second
+         !42n – number of time range specifications describing the time intervals used to
+         !calculate the statistically processed field
+         !43–46Total number of data values missing in statistical process
+         !Time of end of overall time interval
+         !47–58 Specification of the outermost (or only) time range over which statistical
+         !processing is done
+         !- 47 Statistical process used to calculate the processed field from the field at each time
+         !increment during the time range (see Code table 4.10)
+         !48Type of time increment between successive fields used in the statistical processing
+         !(see Code table 4.11)
+         !49Indicator of unit of time for time range over which statistical processing is done
+         !(see Code table 4.4)
+         !50–53Length of the time range over which statistical processing is done, in units defined
+          !by the previous octet
+            !54Indicator of unit of time for the increment between the successive fields used
+           !(see Code table 4.4)
+         !55–58Time increment between successive fields, in units defined by the previous octet
+         !(see Notes 3 and 4)
+         !59–nn
+         !These octets are included only if n > 1, where nn = 46 + 12 x n
+        !59–70As octets 47 to 58, next innermost step of processing
+        !71–nnAdditional time range specifications, included in accor
+
 	    var(i)%bitsPerValue=Default_bitsPerValue !Default value
          do j=1,no_attribs
            !  write(*,*) i,"< template 4.8 >",trim(attribs(1,j)),'<=',trim(attribs(2,j))
