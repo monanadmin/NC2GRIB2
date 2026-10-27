@@ -310,8 +310,8 @@
                     <id typeOfFirstFixedSurface ="1" />
                     <id scaleFactorOfFirstFixedSurface ="0" />
                     <id scaledValueOfFirstFixedSurface = "0"/>
-		    <id typeOfStatisicalProcessing  = "1"/>     <!-- 1 acumulated 0 instantaneop -->
-		    <id timeint = "-1"/> <-- time_interval from start time to forecast time -->
+		    <id typeOfStatisticalProcessing  = "1"/>     <!-- 1 acumulated 0 instantaneop -->
+		    <id timeint = "-1"/> <!-- time_interval from start time to forecast time -->
                     <id bitsPerValue ="32" />
                 </template>
         </element>

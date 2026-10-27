@@ -249,7 +249,7 @@ module mgrib_interface
 		! Product definition Template 4.8
 		!---------------------------------
 		if (parm_id%template==8) then
-
+                 
 		 call codes_set(igrib,"typeOfStatisticalProcessing",parm_id%tStatProc)
 
 		end if

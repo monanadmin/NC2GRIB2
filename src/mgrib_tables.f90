@@ -204,8 +204,8 @@ subroutine init_parm2(parm_table,bitsPerValue_in)
          !These octets are included only if n > 1, where nn = 46 + 12 x n
         !59–70As octets 47 to 58, next innermost step of processing
         !71–nnAdditional time range specifications, included in accor
-
-	    var(i)%bitsPerValue=Default_bitsPerValue !Default value
+        
+	var(i)%bitsPerValue=Default_bitsPerValue !Default value
          do j=1,no_attribs
            !  write(*,*) i,"< template 4.8 >",trim(attribs(1,j)),'<=',trim(attribs(2,j))
              if (trim(attribs(1,j))=="discipline") var(i)%discipline=val(attribs(2,j))
@@ -214,7 +214,10 @@ subroutine init_parm2(parm_table,bitsPerValue_in)
              if (trim(attribs(1,j))=="typeOfFirstFixedSurface") var(i)%tflevel=val(attribs(2,j))
              if (trim(attribs(1,j))=="scaleFactorOfFirstFixedSurface") var(i)%sFactor_FFS=val(attribs(2,j))
              if (trim(attribs(1,j))=="scaledValueOfFirstFixedSurface") var(i)%sValue_FFS=val(attribs(2,j))
-             if (trim(attribs(1,j))=="typeOfStatisticalProcessing") var(i)%TStatProc=val(attribs(2,j))
+             if (trim(attribs(1,j))=="typeOfStatisticalProcessing") then 
+	        var(i)%TStatProc=val(attribs(2,j))
+		print *,"**** tStatProc=",var(i)%TStatProc
+	     end if
              if (trim(attribs(1,j))=="timeInterval") var(i)%time_interval=val(attribs(2,j))
 	         if (bitsPerValue_in==0) then
 		        if (trim(attribs(1,j))=="bitsPerValue") var(i)%bitsPerValue=val(attribs(2,j))
