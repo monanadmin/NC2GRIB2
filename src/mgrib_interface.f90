@@ -41,8 +41,8 @@ module mgrib_interface
    real              ::sValue_FFS    !25-28|scaledValueOfFirstFixedSurface
    logical           ::indicator_tsp !It indicates the presense of Type of Statistical Processing
    integer           ::tStatProc     !47   |typeOfStatisticalProcessing  if not 0 47-58 must be defined
-   integer           ::UnitOfTimeRange   !IndicatorOfUnitOfTimeRange
-  ! integer           ::TimeRange               !lengthOfTimeRange
+   integer           ::UnitOfTimeRange     !IndicatorOfUnitOfTimeRange
+  ! integer           ::TimeRange          !lengthOfTimeRange
    integer           ::bitsPerValue
    character(len=8)  ::cfVarName
    character(len=32) ::ncVarName
@@ -203,7 +203,11 @@ module mgrib_interface
 		if (step>0) then
 			call codes_set(igrib,"typeOfGeneratingProcess",2)
 		end if 
-		
+		if (parm_id%indicator_tsp) then  !It indicates the presense of Type of Statistical Processing
+			print *,"**** :mgrib_interface:**** indicator_tsp=",parm_id%UnitOfTimeRange
+			call codes_set(igrib,"typeOfStatisticalProcessing",parm_id%tStatProc)
+			call codes_set(igrib,"indicatorOfUnitOfTimeRange",parm_id%UnitOfTimeRange)
+        end if
 	!------------------------
 	! Step range definitions
 	!------------------------
@@ -223,7 +227,7 @@ module mgrib_interface
 			  call codes_set(igrib,"stepRange",stepRange)
 			  call codes_set(igrib,"endStep",endStep)
 		  endif
-		
+
 	!*** step type = "accuml, ave, instant
 	!*** codes_set__nc(Number of bit..... )
 	!}

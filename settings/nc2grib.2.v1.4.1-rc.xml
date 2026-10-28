@@ -248,7 +248,7 @@
                     <id typeOfFirstFixedSurface ="1" />
                     <id scaleFactorOfFirstFixedSurface ="0" />
                     <id scaledValueOfFirstFixedSurface = "0"/>
-                    <id timeint = "-1"/> <-- time_interval from start time to forecast time -->
+                    <id timeInterval = "-1"/> <-- time_interval from start time to forecast time -->
 		    <id bitsPerValue ="16" />
 		    
                 </template>
@@ -261,7 +261,7 @@
                     <id typeOfFirstFixedSurface ="1" />
                     <id scaleFactorOfFirstFixedSurface ="0" />
                     <id scaledValueOfFirstFixedSurface = "0"/>
-                    <id timeint = "-1"/> <-- time_interval from start time to forecast time -->
+                    <id timeInterval = "-1"/> <-- time_interval from start time to forecast time -->
 		    <id bitsPerValue ="16" />
                 </template>
         </element>
@@ -302,7 +302,7 @@
                 </template>
         </element>
 	
- <element NCVar="acswdnb" cfVarName="acdswrf" Name=" accumulated all-sky downward surface shortwave radiation flux ( J m-2)" >
+<!-- <element NCVar="acswdnb" cfVarName="acdswrf" Name=" accumulated all-sky downward surface shortwave radiation flux ( J m-2)" >
             <template def="8">
                     <id discipline="0" />
                     <id parameterCategory="4" />
@@ -310,10 +310,13 @@
                     <id typeOfFirstFixedSurface ="1" />
                     <id scaleFactorOfFirstFixedSurface ="0" />
                     <id scaledValueOfFirstFixedSurface = "0"/>
-                    <id timeint = "-1"/>
+                    <id typeOfStatisticalProcessing = "1"/>
+                    <id indicatorOfUnitOfTimeRange = "1"/>
+                    <id lengthOfTimeRange = "6"/>
+                     <id timeInterval = "-1"/>
                     <id bitsPerValue ="32" />
                 </template>
-        </element>
+        </element>-->
 	<!-- Note:  The original data value (Y in the note 4 of Regulation 92.9.4) has units of Code table 4.2 multiplied by second, unless otherwise noted on Code table 4.2.-->
 	
        <!-- <element NCVar="hpbl" cfVarName="hpbl" Name="Planetary boundary layer height  (m)" >

@@ -109,15 +109,16 @@ subroutine init_parm2(parm_table,bitsPerValue_in)
                 if(trim(attribs(1,j))=="def") var(i)%Template=val(attribs(2,1))
             end do !}
             op=.true.
+           !---------------
+           ! Default values
+           ! --------------
+            var(i)%indicator_tsp=.false.  !Using in template definition 4.8
+            var(i)%bitsPerValue=Default_bitsPerValue
+
         else
             op=.false.
         end if!}
       end if !}
-
-      !---------------
-      ! Default values
-      ! --------------
-      ! var(i)%TStatProc=0
 
       !----------------
 
@@ -186,9 +187,11 @@ subroutine init_parm2(parm_table,bitsPerValue_in)
          !      |calculate the statistically processed field
          !43–46 |Total number of data values missing in statistical process
          !      |Time of end of overall time interval
+         !-------------------------------------------------------------------------------------------
          !47–58 |Specification of the outermost (or only) time range over which statistical
          !      |processing is done
-         !- 47  |Statistical process used to calculate the processed field from the field at each time
+         !-----------------------------------------------------------------------------------------
+         !47    |Statistical process used to calculate the processed field from the field at each time
          !      |increment during the time range (see Code table 4.10)
          !48    |Type of time increment between successive fields used in the statistical processing
          !      |(see Code table 4.11)
@@ -201,10 +204,9 @@ subroutine init_parm2(parm_table,bitsPerValue_in)
          !55–58 |Time increment between successive fields, in units defined by the previous octet
          !      |(see Notes 3 and 4)
          !59–nn | These octets are included only if n > 1, where nn = 46 + 12 x n
-         !59–70 |As octets 47 to 58, next innermost step of processing
-         !71–nn |Additional time range specifications, included in accor
+         !59–70 | As octets 47 to 58, next innermost step of processing
+         !71–nn | Additional time range specifications, included in accor
         
-	var(i)%bitsPerValue=Default_bitsPerValue !Default value
          do j=1,no_attribs
            !  write(*,*) i,"< template 4.8 >",trim(attribs(1,j)),'<=',trim(attribs(2,j))
              if (trim(attribs(1,j))=="discipline") var(i)%discipline=val(attribs(2,j))
@@ -214,6 +216,14 @@ subroutine init_parm2(parm_table,bitsPerValue_in)
              if (trim(attribs(1,j))=="scaleFactorOfFirstFixedSurface") var(i)%sFactor_FFS=val(attribs(2,j))
              if (trim(attribs(1,j))=="scaledValueOfFirstFixedSurface") var(i)%sValue_FFS=val(attribs(2,j))
              if (trim(attribs(1,j))=="timeInterval") var(i)%time_interval=val(attribs(2,j))
+             if (trim(attribs(1,j))=="typeOfStatisticalProcessing") then
+               var(i)%tStatProc=val(attribs(2,j))
+               var(i)%indicator_tsp=.true.
+            end if
+            if (trim(attribs(1,j))=="indicatorOfUnitOfTimeRange") then
+              var(i)%UnitOfTimeRange=val(attribs(2,j))
+            end if
+
 	         if (bitsPerValue_in==0) then
 		        if (trim(attribs(1,j))=="bitsPerValue") var(i)%bitsPerValue=val(attribs(2,j))
              end if 
