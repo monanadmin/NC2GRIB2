@@ -37,9 +37,12 @@ module mgrib_interface
    integer           ::pNum
    integer           ::tflevel
    integer           ::time_interval !Time Interval 
-   real              ::sFactor_FFS   !scaleFactorOfFirstFixedSurface
-   real              ::sValue_FFS    !scaledValueOfFirstFixedSurface
-   integer           ::tStatProc     !typeOfStatisticalProcessing
+   real              ::sFactor_FFS   !24   |scaleFactorOfFirstFixedSurface
+   real              ::sValue_FFS    !25-28|scaledValueOfFirstFixedSurface
+   logical           ::indicator_tsp !It indicates the presense of Type of Statistical Processing
+   integer           ::tStatProc     !47   |typeOfStatisticalProcessing  if not 0 47-58 must be defined
+   integer           ::UnitOfTimeRange   !IndicatorOfUnitOfTimeRange
+  ! integer           ::TimeRange               !lengthOfTimeRange
    integer           ::bitsPerValue
    character(len=8)  ::cfVarName
    character(len=32) ::ncVarName
