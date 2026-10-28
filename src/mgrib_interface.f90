@@ -39,7 +39,7 @@ module mgrib_interface
    integer           ::time_interval !Time Interval 
    real              ::sFactor_FFS   !scaleFactorOfFirstFixedSurface
    real              ::sValue_FFS    !scaledValueOfFirstFixedSurface
-   integer           ::tStatProc     !typeOfStatisticalProcessing
+!   integer           ::tStatProc     !typeOfStatisticalProcessing
    integer           ::bitsPerValue
    character(len=8)  ::cfVarName
    character(len=32) ::ncVarName
@@ -245,14 +245,6 @@ module mgrib_interface
 		call codes_set(igrib,"scaleFactorOfFirstFixedSurface",SFactor_FFS)
 		call codes_set(igrib,"scaledValueOfFirstFixedSurface",SValue_FFS)
 
-		!--------------------------------
-		! Product definition Template 4.8
-		!---------------------------------
-		if (parm_id%template==8) then
-                 
-		 call codes_set(igrib,"typeOfStatisticalProcessing",parm_id%tStatProc)
-
-		end if
 
 		!call codes_set_size(igrib,"values",nb_values)
 	!}

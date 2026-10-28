@@ -302,7 +302,7 @@
                 </template>
         </element>
 	
-	 <element NCVar="acswdnb" cfVarName="acdswrf" Name=" accumulated all-sky downward surface shortwave radiation flux ( J m-2)" >
+ <element NCVar="acswdnb" cfVarName="acdswrf" Name=" accumulated all-sky downward surface shortwave radiation flux ( J m-2)" >
             <template def="8">
                     <id discipline="0" />
                     <id parameterCategory="4" />
@@ -310,8 +310,7 @@
                     <id typeOfFirstFixedSurface ="1" />
                     <id scaleFactorOfFirstFixedSurface ="0" />
                     <id scaledValueOfFirstFixedSurface = "0"/>
-		    <id typeOfStatisticalProcessing  = "1"/>     <!-- 1 acumulated 0 instantaneop -->
-		    <id timeint = "-1"/> <!-- time_interval from start time to forecast time -->
+                    <id timeint = "-1"/>
                     <id bitsPerValue ="32" />
                 </template>
         </element>
