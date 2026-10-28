@@ -248,14 +248,6 @@ module mgrib_interface
 		call codes_set(igrib,"scaleFactorOfFirstFixedSurface",SFactor_FFS)
 		call codes_set(igrib,"scaledValueOfFirstFixedSurface",SValue_FFS)
 
-		!--------------------------------
-		! Product definition Template 4.8
-		!---------------------------------
-		if (parm_id%template==8) then
-
-		 call codes_set(igrib,"typeOfStatisticalProcessing",parm_id%tStatProc)
-
-		end if
 
 		!call codes_set_size(igrib,"values",nb_values)
 	!}

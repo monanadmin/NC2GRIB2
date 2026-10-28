@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <dataroot>
     <product>
-        <definition def="0" title="Product definition template 4.0 - analysis or forecast at a horizontal level or in a horizontal layer at a point in time" />
+        <!-- See Product definition template used in section 4 --> 
+        <definition def="0" title="Product definition template 4.0 - analysis or forecast at a horizontal level or in a horizontal layer at a point in time" /> <!-- GRIB PDT-1 -->
         <definition def="8" title="Product definition template 4.8 - average, accumulation and/or extreme values or other statistically processed values at a horizontal level or in a horizontal layer in a continuous or non-continuous> time interval">
             <!--
 	       In case of template 4.8 , time interval must be provided: 
@@ -300,18 +301,20 @@
                     <id bitsPerValue ="16" />
                 </template>
         </element>
-	 <element NCVar="acswdnb" cfVarName="acdswrf" Name=" accumulated all-sky downward surface shortwave radiation flux ( J m-2)" >
-            <template def="0">
+	
+ <element NCVar="acswdnb" cfVarName="acdswrf" Name=" accumulated all-sky downward surface shortwave radiation flux ( J m-2)" >
+            <template def="8">
                     <id discipline="0" />
                     <id parameterCategory="4" />
                     <id parameterNumber="7" />
                     <id typeOfFirstFixedSurface ="1" />
                     <id scaleFactorOfFirstFixedSurface ="0" />
                     <id scaledValueOfFirstFixedSurface = "0"/>
-		    <id typeOfStatisicalProcessing  = "1"/>     <!-- 1 acumulated 0 instantaneop -->
+                    <id timeint = "-1"/>
                     <id bitsPerValue ="32" />
                 </template>
         </element>
+	<!-- Note:  The original data value (Y in the note 4 of Regulation 92.9.4) has units of Code table 4.2 multiplied by second, unless otherwise noted on Code table 4.2.-->
 	
        <!-- <element NCVar="hpbl" cfVarName="hpbl" Name="Planetary boundary layer height  (m)" >
             <template def="0">
@@ -358,5 +361,12 @@
 
 
     </nc2grib2>
+    
+ <!--  Notes - Regulations
+    Regulations 
+    92.6.2 To maintain orthogonal structure of GRIB Edition 2, parameter names in Code table 4.2
+should not contain surface type and statistical process as part of the name.
+
+-->
 
 </dataroot>
