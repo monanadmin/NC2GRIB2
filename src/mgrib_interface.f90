@@ -222,11 +222,11 @@ module mgrib_interface
 			elseif (parm_id%time_interval==0) then
 				call codes_set(igrib,"stepRange",step)
 			else   ! Accumulation since the start time
-			   endStep=step
-			   write(stepRange,'("0-",i3)')endStep
-			  call codes_set(igrib,"stepRange",stepRange)
-			  call codes_set(igrib,"endStep",endStep)
-		  endif
+			endStep=step
+			write(stepRange,'("0-",i3)')endStep
+			call codes_set(igrib,"stepRange",stepRange)
+			call codes_set(igrib,"endStep",endStep)
+		endif
 
 	!*** step type = "accuml, ave, instant
 	!*** codes_set__nc(Number of bit..... )
