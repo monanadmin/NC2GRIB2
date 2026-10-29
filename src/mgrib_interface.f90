@@ -39,6 +39,7 @@ module mgrib_interface
    integer           ::time_interval !Time Interval 
    real              ::sFactor_FFS   !scaleFactorOfFirstFixedSurface
    real              ::sValue_FFS    !scaledValueOfFirstFixedSurface
+   integer           ::bitsPerValue
    character(len=8)  ::cfVarName
    character(len=32) ::ncVarName
    character(len=250)::VarName
@@ -111,8 +112,6 @@ module mgrib_interface
 	packingType=grib_def%packingType
 
 	write(outfile,'(a,".grib",i1)')trim(grib_file),editionNumber
-!	print *,":MGRIB_INTERFACE: output filename = ",trim(outfile)
-	!call codes_grib_open_file(out1,grib_file,'w')
 	call codes_open_file(out1,outfile,'w')
 	!call codes_grib_new_from_samples(igrib, "./sh_sfc_grib2")   !Example Sherical Hamonics - sfc grib 2
 	!call codes_grib_new_from_samples(igrib,"./regular_ll_sfc_grib2")
@@ -120,29 +119,31 @@ module mgrib_interface
 	call codes_set(igrib, "tablesVersion", tablesVersion_default,status)
 	call codes_set(igrib,'editionNumber',grib_def%edition)
 
-	!----------
+	!----------------------------------
 	!section 1
-	!---------
+	!----------------------------------
+	! subcenter
+	! localTableVersion
+	! significanceOfReferenceTime
+	!-----------------------------
+
 	call codes_set(igrib,'centre',46)
-	!subcenter
-	!localTableVersion
-	!significanceOfReferenceTime
 	call codes_set(igrib,'date',grib_def%idate)
 	call codes_set(igrib,'time',grib_def%itime)
 	call codes_set(igrib,'productionStatusOfProcessedData',grib_def%productionStatus)
 	!productionStatusOfProcessedData
 	!typeOfProcessedData
 
-	!---------
+	!----------------------------------------------
 	!section 3
-	!---------
+	!----------------------------------------------
 	!source_Of_gridDefinition
 	!NumberOfDataPoints
 	!NumberOfOctectsForNumberOfDataPoints
 	!12-interpretationOfNumberOfPoints
 	!13-14 _GridDefinitionTemplateNumber
 	!15    - shapeOfTheEarth
-
+        !-----------------------------------------------
 	call codes_set(igrib,"Ni",Ni) !31-34
 	call codes_set(igrib,"Nj",Nj) !35-36
 	!39-42 BasicAngleOfTheinitialProcutionDomain
@@ -266,6 +267,8 @@ module mgrib_interface
 				values(nb)=par(i,j)
 			end do
 		end do
+	if (parm_id%bitsPerValue/=32) call codes_set(igrib,"bitsPerValue",parm_id%bitsPerValue)
+	!call codes_set(igrib,"decimal`ScaleFactor",0)  !No Effect
 	call codes_set(igrib,"values",values)
 	deallocate(values)
 	call codes_write(igrib,out1)
@@ -328,6 +331,7 @@ subroutine set_bitmap(data,missing,bitmap)
 !that grid point
 !• When decoding, you can directly query the bitmap to
 !discover missing data values
+
 !14EUROPEAN CENTRE FOR MEDIUM-RANGE WEATHER FORECASTS October 29, 2014
 !Bitmap: Practicals
 !cd $SCRATCH
