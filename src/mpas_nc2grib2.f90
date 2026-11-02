@@ -22,6 +22,7 @@ program mpas_nc2grib2
 ! 2025-10-22  Improviment: The regular_grid function was included 
 ! 2026-07-29  Improviment: Inclusion of test if ECCODES_DIR is defined to read sample file
 ! 2026-10-26  V2.3 Improviment: Compression-Using-bit-per-value-definitionnclusion of definition
+! 2026-10-28  V2.4 Important Modification: Otimization of memory space: reading nc and write grib2 per variable
   use netcdf
   use stringflib
   use datelib
@@ -153,7 +154,7 @@ program mpas_nc2grib2
        print *,"|--------------------------------------------------------------+"
        print *,"| mpas_nc2grib2.x                                              |"
        print *,"|--------------------------------------------------------------+"
-       print *,"| MCTI-INPE (2026-10-26) V. 2.3                                |"
+       print *,"| MCTI-INPE (2026-10-28) V. 2.4                                |"
        print *,"|--------------------------------------------------------------+"
 
       if (x1*x2*x3==0) then
@@ -195,7 +196,9 @@ program mpas_nc2grib2
       print *,":MPAS_NC2GRIB2:ECCODES_DIR=",trim(eccodes_dir)
    end if
    sample="regular_ll_sfc_grib2"
-   
+
+  !-----------------------------------------------------------------------------
+  ! PART 1 OPEN NETCDF FILE And check
   !-------------------------------------------------------------------------------
   ! Open the file. NF90_NOWRITE tells netCDF we want read-only access to the file.
   ! Allocate variables
@@ -203,8 +206,9 @@ program mpas_nc2grib2
   ! Attention:  The  dimensions of variables  must be declared back to front in 
   !             fortran- 
   !             ex.:float mslp(time, lat, lon) ;--> fortran mslp(lon,lat,time)
-
+  !
   !-------------------------------------------------------------------------------
+  !{
      print *,":MPAS_NC2GRIB2: Input filename = ", trim(FILE_NAME)
      call check( nf90_open(FILE_NAME, NF90_NOWRITE, ncid) )
      call check( nf90_inquire(ncid,ndim,nvar))
@@ -296,9 +300,9 @@ program mpas_nc2grib2
      allocate (lat(0:nlat-1))
      allocate (lev(0:nlev-1))
      if (seqdim=="XYZT") then
-          allocate (vxyzt(0:svar,0:nlon-1,0:nlat-1,0:nlev-1,0:nt-1))
+          allocate (vxyzt(0:0,0:nlon-1,0:nlat-1,0:nlev-1,0:nt-1))
      elseif (seqdim=="ZXYT") then
-          allocate(vzxyt(0:svar,0:nlev-1,0:nlon-1,0:nlat-1,0:nt-1))
+          allocate(vzxyt(0:0,0:nlev-1,0:nlon-1,0:nlat-1,0:nt-1))
      else
          print *,":MPAS_NC2GRIB2: ERROR: unrecognized matrix shape"
          print *,":MPAS_NC2GRIB2: STOP"
@@ -307,10 +311,9 @@ program mpas_nc2grib2
      allocate (bitmap(0:nlon-1,0:nlat-1))
      check_var(:)=.false.
 
- !-----------
- ! Read DATA
- !----------
+ !----------------------------
  !*** Reading Longitudes ***
+ !---------------------------
   call check(nf90_get_var(ncid, ilon, lon) )
   if (verbose>0) print *,":MPAS_NC2GRIB2: Reading Longitudes.. "
    
@@ -334,9 +337,9 @@ program mpas_nc2grib2
 
   if (verbose>0) print *,":MPAS_NC2GRIB2: nlon=",nlon,"lon = [", loni,":",lonf ,":",dlon," ]"
   
-  
+ !-------------------------
  !*** Reading Latitudes ***
-
+ !--------------------------
   call check(nf90_get_var(ncid, ilat, lat) )
   if (verbose>0) print *,":MPAS_NC2GRIB2: Reading Latitudes.. "
   
@@ -355,9 +358,9 @@ program mpas_nc2grib2
 
 
   if (verbose>0) print *,":MPAS_NC2GRIB2: nlat=",nlat,"lat = [", lati,":",latf,":",dlat,"]"
-
+ !-----------------
  !*** Read Lev ***
-
+ !-----------------
   call check(nf90_get_var(ncid, ilev, lev) )
   if (verbose>0) print *,":MPAS_NC2GRIB2: nlev=",nlev,"lev = [", lev(0),"-",lev(nlev-1),"]"
 
@@ -367,80 +370,16 @@ program mpas_nc2grib2
   end if 
   call check( nf90_inquire(ncid,ndim,nvar))
 
-  !-------------------------------
 
-  do varid = 5,nvar
-    vin_name=""
-
-    call check( nf90_inquire_variable(ncid, varid, vin_name,xtype,ndims))
-    call check( nf90_get_att(ncid, varid,'_FillValue', missing))
-    if ( len_trim(vin_name)==0) then 
-        print *,":MPAS_NC2GRIB2: Error in nf90_inquire_variable!"
-        print *,"  ncid,varid=",ncid,varid
-        stop
-     end if 
-
-   i=get_ncVarName_index(vin_name)
-   if (i>0) then
-
-      if ((ndims>3).and.(var(i)%tflevel/=100)) then
-         print *,varid," nc=[",trim(vin_name),"] cf=[",trim(var(i)%cfVarName),"] Error in the variable dimension deffinition"
-      else
-         write(xxx,'(i3)')var(i)%bitsPerValue
-         if (verbose>1) print *, varid," nc=[",trim(vin_name),"] cf=[",trim(var(i)%cfVarName),"] bits=[",xxx,"] OK"
-      end if
-
-      var(i)%missing=missing
-      check_var(i)=.true.
-       if (verbose>2) print *,"...Reading ",i," [",trim(vin_name),"]= ",trim(var(i)%VarName)
-
-       if (seqdim=="XYZT") then
-       !------------------------------------------------------
-
-          if ((var(i)%tflevel/=100).and.(ndims==3)) then
-            call check(nf90_get_var(ncid, varid, vxyzt(i,:,:,0,:)))
-          else
-             call check(nf90_get_var(ncid, varid, vxyzt(i,:,:,:,:)))
-          end if
-       !-----------------------------------------------------------
-       else
-       !-------------------------------------------------------------
-           if ((var(i)%tflevel/=100).and.(ndims==3)) then
-	    call check(nf90_get_var(ncid, varid, vzxyt(i,0,:,:,:)))
-          else
-             call check(nf90_get_var(ncid, varid, vzxyt(i,:,:,:,:)))
-          end if
-       !--------------------------------------------------------------
-       end if
-
-    else
-       if (verbose>1) then
-          call check( nf90_get_att(ncid, varid,'long_name', longname))
-          print *,varid," nc=[",trim(vin_name),"] cf=[ ",trim(color_text("IGNORED",33,.false.))," ] --> ",trim(longname)
-        end if
-    end if
-  end do
-  call check( nf90_close(ncid) )
-
-  !-------------------------------------------------
-  ! Check vertical level unit. If hPa convert to Pa
-  !-------------------------------------------------
-   if (lev(0)<lev(nlev-1)) then
-      print *,":MPAS_NC2GRIB2: Error in vertical levels"
-      stop
-   end if
-
-  if (lev(0)<50000) then
-    lev(:)=lev(:)*100
-  end if
-
-
-!--------------------------
-! GRIB DEFINITIONS
-!--------------------------
+ !-----------------------------------------------------------------------------
+ ! PART 2 GETTING DEFINITIONS AND OPEN GRIB FILE
+ !-------------------------------------------------------------------------------
+ !--------------------------
+ ! GRIB DEFINITIONS
+ !--------------------------
 
     grib_def%productionStatus=1
-    
+
     !^^^^^^^^^^^^^^^^^^^^^^^^^-------------------
     ! CODE TABLE 1.3, Production status of data
     !--------------------------------------------
@@ -451,7 +390,7 @@ program mpas_nc2grib2
     !4 4  TIGGE Operational products
     !5 5  TIGGE test products
     !---------------------------------------------
-    
+
     grib_def%edition=2
     ymd=date_ymd(start_date)
     read(ymd,'(i8)')iymd
@@ -472,69 +411,137 @@ program mpas_nc2grib2
     grib_def%NI=nlon
     grib_def%NJ=nlat
     grib_def%NK=nlev
-    
+
     !--------------
     ! Packing Type
     !-------------
-    
+
     if (op==1) then
        grib_def%packingType="grid_ccsds"
     else
        grib_def%packingType="grid_simple"
     end if
-    
+
     if (verbose>2)  print *,"idate=",grib_def%idate
     if (verbose>2)  print *,"itime=",grib_def%itime
     step=ifct
+   !-------------------------------------------------
+   ! Check vertical level unit. If hPa convert to Pa
+   !-------------------------------------------------
+   if (lev(0)<lev(nlev-1)) then
+      print *,":MPAS_NC2GRIB2: Error in vertical levels"
+      stop
+   end if
 
-!------------------------------
-! Saving data in grib2 format
-!------------------------------
-!{ *1*
+  if (lev(0)<50000) then
+    lev(:)=lev(:)*100
+  end if
+   !-------------------------------------------------
+   !OPEN GRIB FILE
+   !-------------------------------------------------
+
     outfile_c=current_filename(OUTFILE,start_date,ifct);
     print *,":MPAS_NC2GRIB2: output filename=",trim(outfile_c)
     call openw_grib(outfile_c,grib_def,tablesVersion_default,sample)
+ !-----------------------------------------------------------------------------
+ ! PART 3 READ NETCDF  AND WRITE GRIB2
+ !-------------------------------------------------------------------------------
+ !{ VAR 5 TO NVAR
+  do varid = 5,nvar
+    vin_name=""
 
+    call check( nf90_inquire_variable(ncid, varid, vin_name,xtype,ndims))
+    call check( nf90_get_att(ncid, varid,'_FillValue', missing))
+    if ( len_trim(vin_name)==0) then 
+        print *,":MPAS_NC2GRIB2: Error in nf90_inquire_variable!"
+        print *,"  ncid,varid=",ncid,varid
+        stop
+     end if 
+
+   i=get_ncVarName_index(vin_name)
+   if (i>0) then !{
+
+      if ((ndims>3).and.(var(i)%tflevel/=100)) then
+         print *,varid," nc=[",trim(vin_name),"] cf=[",trim(var(i)%cfVarName),"] Error in the variable dimension deffinition"
+      else
+         write(xxx,'(i3)')var(i)%bitsPerValue
+         if (verbose>1) print *, varid," nc=[",trim(vin_name),"] cf=[",trim(var(i)%cfVarName),"] bits=[",xxx,"] OK"
+      end if
+
+      var(i)%missing=missing
+      check_var(i)=.true.
+       if (verbose>2) print *,"...Reading ",i," [",trim(vin_name),"]= ",trim(var(i)%VarName)
+
+       !------------------------------------------------------
+       ! READING !
+       !------------------------------------------------------
+       if (seqdim=="XYZT") then !{
+         if ((var(i)%tflevel/=100).and.(ndims==3)) then
+            call check(nf90_get_var(ncid, varid, vxyzt(0,:,:,0,:)))
+          else
+             call check(nf90_get_var(ncid, varid, vxyzt(0,:,:,:,:)))
+          end if
+       !-----------------------------------------------------------
+       else !}!{
+       !-------------------------------------------------------------
+           if ((var(i)%tflevel/=100).and.(ndims==3)) then
+	         call check(nf90_get_var(ncid, varid, vzxyt(0,0,:,:,:)))
+          else
+             call check(nf90_get_var(ncid, varid, vzxyt(0,:,:,:,:)))
+          end if
+       !--------------------------------------------------------------
+       end if !}
+
+    else !} !Variable that is not on the list
+       if (verbose>1) then
+          call check( nf90_get_att(ncid, varid,'long_name', longname))
+          print *,varid," nc=[",trim(vin_name),"] cf=[ ",trim(color_text("IGNORED",33,.false.))," ] --> ",trim(longname)
+        end if
+    end if
+
+     if (i>0) then !{
+    !------------------------------------------
+    ! Saving selected variables  in grib2 format
+    !-------------------------------------------
      if (seqdim=="XYZT") then
      !------------------------------
-      do i=1,svar
-       if (check_var(i)) then
           if (var(i)%tflevel==100) then
              do k=0,grib_def%NK-1
-                call set_bitmap(vxyzt(i,:,:,k,0),var(i)%missing,bitmap(:,:))
-                call write_grib2(var(i),vxyzt(i,:,:,k,0),grib_def%lev(k),step)
+                call set_bitmap(vxyzt(0,:,:,k,0),var(i)%missing,bitmap(:,:))
+                call write_grib2(var(i),vxyzt(0,:,:,k,0),grib_def%lev(k),step)
              end do
            else
-             call set_bitmap(vxyzt(i,:,:,0,0),var(i)%missing,bitmap(:,:))
-             call write_grib2(var(i),vxyzt(i,:,:,0,0),0.0,step)
+             call set_bitmap(vxyzt(0,:,:,0,0),var(i)%missing,bitmap(:,:))
+             call write_grib2(var(i),vxyzt(0,:,:,0,0),0.0,step)
            end if
-      else
-          txt=trim(var(i)%cfVarName)//"-"//trim(var(i)%VarName)
-          print *,i,trim(txt)//trim(color_text(": NOT FOUND!",31,.false.))
-      end if
-    end do
+
     !------------------------------------
     else
     !-----------------------------------
-    do i=1,svar
-       if (check_var(i)) then
           if (var(i)%tflevel==100) then
              do k=0,grib_def%NK-1
-                call write_grib2(var(i),vzxyt(i,k,:,:,0),grib_def%lev(k),step)
+                call write_grib2(var(i),vzxyt(0,k,:,:,0),grib_def%lev(k),step)
              end do
            else
              call write_grib2(var(i),vzxyt(i,0,:,:,0),0.0,step)
            end if
-      else
-        txt=trim(var(i)%cfVarName)//"-"//trim(var(i)%VarName)
-        print *,i,trim(txt)//trim(color_text(": NOT FOUND!",31,.false.))
-
-      end if
-    end do
     !-----------------------------------
     end if
+    end if !}
 
-    call close_grib()
+  end do !} VAR 5 TO NVAR
+  call check( nf90_close(ncid) )
+  call close_grib()
+
+!--------------------------------
+! Cheking Variables not found ***
+!---------------------------------
+  !do i = 5,svar
+  !       if (.not.check_var(i)) then
+  !        txt=trim(var(i)%cfVarName)//"-"//trim(var(i)%VarName)
+  !        print *,i,trim(txt)//trim(color_text(": NOT FOUND!",31,.false.))
+  !      end if
+  !end do
   print *,"*** MPAS_NC2GRIB2: DONE *** "
   print *,""
 
