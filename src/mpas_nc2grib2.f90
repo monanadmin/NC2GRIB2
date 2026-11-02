@@ -22,7 +22,7 @@ program mpas_nc2grib2
 ! 2025-10-22  Improviment: The regular_grid function was included 
 ! 2026-07-29  Improviment: Inclusion of test if ECCODES_DIR is defined to read sample file
 ! 2026-10-26  V2.3 Improviment: Compression-Using-bit-per-value-definitionnclusion of definition
-! 2026-10-28  V2.4 Import Modification: Otimization of memory space: reading nc and write grib2 per variable
+! 2026-10-28  V2.4 Important Modification: Otimization of memory space: reading nc and write grib2 per variable
   use netcdf
   use stringflib
   use datelib
