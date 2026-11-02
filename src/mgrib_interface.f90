@@ -200,9 +200,21 @@ module mgrib_interface
 			call codes_set(igrib,"typeOfGeneratingProcess",2)
 		end if 
 		
-	!------------------------
+	!----------------------------------------------------------------------------
 	! Step range definitions
-	!------------------------
+	! This software performe the calculation of endstep and step range from time_interval
+	! as follow:
+	!
+	! a) Case time_interval (+) :
+	!   endStep = current step (step)
+	!   initStep="endStep"-"Time_interval" (hours)
+	! b) Case time_inteval = 0 : Instantaneous  stepRange=step
+	!
+    ! c) Case time_interval (-) : = -1 ! Accumulation since the start time
+	!   initStep = 0  (analysis)
+	!   endStep=current step (step)
+	!   stepRange="0"-"endStep"
+	!----------------------------------------------------------------------------
 	!{
 		if (parm_id%time_interval>0) then
 			endStep=step
@@ -214,6 +226,7 @@ module mgrib_interface
 			elseif (parm_id%time_interval==0) then
 				call codes_set(igrib,"stepRange",step)
 			else   ! Accumulation since the start time
+
 			endStep=step
 			write(stepRange,'("0-",i3)')endStep
 			call codes_set(igrib,"stepRange",stepRange)

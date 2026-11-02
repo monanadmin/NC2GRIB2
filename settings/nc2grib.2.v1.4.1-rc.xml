@@ -246,7 +246,7 @@
                     <id typeOfFirstFixedSurface ="1" />
                     <id scaleFactorOfFirstFixedSurface ="0" />
                     <id scaledValueOfFirstFixedSurface = "0"/>
-                    <id timeint = "-1"/> <-- time_interval from start time to forecast time -->
+                    <id timeInterval = "-1"/> <-- time_interval from start time to forecast time -->
 		    <id bitsPerValue ="16" />
 		    
                 </template>
@@ -259,7 +259,7 @@
                     <id typeOfFirstFixedSurface ="1" />
                     <id scaleFactorOfFirstFixedSurface ="0" />
                     <id scaledValueOfFirstFixedSurface = "0"/>
-                    <id timeint = "-1"/> <-- time_interval from start time to forecast time -->
+                    <id timeInterval = "-1"/> <-- time_interval from start time to forecast time -->
 		    <id bitsPerValue ="16" />
                 </template>
         </element>
@@ -271,7 +271,7 @@
                     <id typeOfFirstFixedSurface ="1" />
                     <id scaleFactorOfFirstFixedSurface ="0" />
                     <id scaledValueOfFirstFixedSurface = "0"/>
-                    <id timeint = "-1"/> 
+                    <id timeInterval = "-1"/>
                 </template>
         </element>-->
         <!--Surface latent heat flux w/kg"-->
