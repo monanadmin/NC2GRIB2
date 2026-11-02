@@ -37,12 +37,8 @@ module mgrib_interface
    integer           ::pNum
    integer           ::tflevel
    integer           ::time_interval !Time Interval 
-   real              ::sFactor_FFS   !24   |scaleFactorOfFirstFixedSurface
-   real              ::sValue_FFS    !25-28|scaledValueOfFirstFixedSurface
-   logical           ::indicator_tsp !It indicates the presense of Type of Statistical Processing
-   integer           ::tStatProc     !47   |typeOfStatisticalProcessing  if not 0 47-58 must be defined
-   integer           ::UnitOfTimeRange     !IndicatorOfUnitOfTimeRange
-  ! integer           ::TimeRange          !lengthOfTimeRange
+   real              ::sFactor_FFS   !scaleFactorOfFirstFixedSurface
+   real              ::sValue_FFS    !scaledValueOfFirstFixedSurface
    integer           ::bitsPerValue
    character(len=8)  ::cfVarName
    character(len=32) ::ncVarName
@@ -203,14 +199,22 @@ module mgrib_interface
 		if (step>0) then
 			call codes_set(igrib,"typeOfGeneratingProcess",2)
 		end if 
-		if (parm_id%indicator_tsp) then  !It indicates the presense of Type of Statistical Processing
-			print *,"**** :mgrib_interface:**** indicator_tsp=",parm_id%UnitOfTimeRange
-			call codes_set(igrib,"typeOfStatisticalProcessing",parm_id%tStatProc)
-			call codes_set(igrib,"indicatorOfUnitOfTimeRange",parm_id%UnitOfTimeRange)
-        end if
-	!------------------------
+		
+	!----------------------------------------------------------------------------
 	! Step range definitions
-	!------------------------
+	! This software performe the calculation of endstep and step range from time_interval
+	! as follow:
+	!
+	! a) Case time_interval (+) :
+	!   endStep = current step (step)
+	!   initStep="endStep"-"Time_interval" (hours)
+	! b) Case time_inteval = 0 : Instantaneous  stepRange=step
+	!
+    ! c) Case time_interval (-) : = -1 ! Accumulation since the start time
+	!   initStep = 0  (analysis)
+	!   endStep=current step (step)
+	!   stepRange="0"-"endStep"
+	!----------------------------------------------------------------------------
 	!{
 		if (parm_id%time_interval>0) then
 			endStep=step
@@ -222,6 +226,7 @@ module mgrib_interface
 			elseif (parm_id%time_interval==0) then
 				call codes_set(igrib,"stepRange",step)
 			else   ! Accumulation since the start time
+
 			endStep=step
 			write(stepRange,'("0-",i3)')endStep
 			call codes_set(igrib,"stepRange",stepRange)
@@ -247,12 +252,9 @@ module mgrib_interface
 			SValue_FFS=0
 		end if
 		NB=Ni*Nj
-
 		call codes_set(igrib,"typeOfFirstFixedSurface",tlevel)
 		call codes_set(igrib,"scaleFactorOfFirstFixedSurface",SFactor_FFS)
 		call codes_set(igrib,"scaledValueOfFirstFixedSurface",SValue_FFS)
-
-
 		!call codes_set_size(igrib,"values",nb_values)
 	!}
 	!------------------------------------------------------------------------------------
@@ -302,8 +304,7 @@ end subroutine
 ! to include the condification of bitmap in grib2
 !------------------------------------------------------------------------------
 ! Note: bitmap(i,j) is not been used because EcCodes performs it
-! internally for enconde using current_missing value.
-! It is here just for future uses
+! internally for enconde. It is here just for future uses
 !-----------------------------------------------------------------------------
 subroutine set_bitmap(data,missing,bitmap)
  !{ Interface Variables

@@ -21,7 +21,7 @@ program mpas_nc2grib2
 ! 2025-07-01  Improviment: Check of the coordinated variables sequence were included
 ! 2025-10-22  Improviment: The regular_grid function was included 
 ! 2026-07-29  Improviment: Inclusion of test if ECCODES_DIR is defined to read sample file
-! 2026-10-26  V2.3 Improviment: Inclusion of definition of "type of Statistical Processing" necessary for radiation parameters
+! 2026-10-26  V2.3 Improviment: Compression-Using-bit-per-value-definitionnclusion of definition
   use netcdf
   use stringflib
   use datelib
