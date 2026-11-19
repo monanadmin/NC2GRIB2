@@ -22,13 +22,13 @@ resolution='x5898242L55'
 fileout=$dirout/MONAN_DIAG_G_POS_GFS_%Y4%M2%D2%H2_%y4%m2%d2%h2.$resolution
 
 start_time=2026082800
-for f in $(seq 6 6 11 ) ;do
+for f in $(seq 12 12 23 ) ;do
     fff=$(printf "%03d\n" $f )
     source ./get_date.sh ${start_time}${fff}
     forecast_time=$yy2$mm2$dd2$hh2
     filein=$dirin/MONAN_DIAG_G_POS_GFS_${start_time}_${forecast_time}.00.00.$resolution.nc
     date
-    echo $NC2GRIB_DIR'/bin/mpas_nc2grib2.x -i '$filein' -o '$fileout' -s '$start_time' -f '$fff' -v 2'
-    $NC2GRIB_DIR/bin/mpas_nc2grib2.x -i $filein -o $fileout -s $start_time -f $fff -v 2  -C '../../settings/nc2grib.2.v1.4.1-rc.xml'
+    echo $NC2GRIB_DIR'/bin/mpas_nc2grib2.x -i '$filein' -o '$fileout' -s '$start_time' -f '$fff' -v 3 ../../settings/nc2grib.2.v1.4.1-rc.xml'
+    $NC2GRIB_DIR/bin/mpas_nc2grib2.x -i $filein -o $fileout -s $start_time -f $fff -v 3  -C '../../settings/nc2grib.2.v1.4.1-rc.xml'
 done
 date
