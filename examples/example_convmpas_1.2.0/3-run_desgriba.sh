@@ -1,4 +1,5 @@
 #!/bin/bash
+#export ECCODES_DIR=~/eccodes
 echo $ECCODES_DIR
 $ECCODES_DIR/bin/codes_info
 GRIBDUMP=${ECCODES_DIR}/bin/grib_dump
