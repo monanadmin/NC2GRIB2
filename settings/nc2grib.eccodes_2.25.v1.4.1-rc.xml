@@ -4,14 +4,14 @@
         <!-- See Product definition template used in section 4 -->
         <definition def="0" title="Product definition template 4.0 - analysis or forecast at a horizontal level or in a horizontal layer at a point in time" />
         <definition def="8" title="Product definition template 4.8 - average, accumulation and/or extreme values or other statistically processed values at a horizontal level or in a horizontal layer in a continuous or non-continuous> time interval">
-            <!--
-	       In case of template 4.8 , time interval must be provided: 
-	         time_interval is the tnterval in hours in case of accumulated or mean parameter or template
-                         Note: Use time_interval=-1  to indicate time_interval from start time to forecast time
-	    -->
+        <!--
+        In case of template 4.8 , time interval must be provided:
+        time_interval is the tnterval in hours in case of accumulated or mean parameter or template
+        Note: Use time_interval=-1  to indicate time_interval from start time to forecast time
+        -->
 
     </product>
-    <settings tablesVersion_default="4"/>
+    <settings tablesVersion_default="28"/>
     <nc2grib2>
         <!--
           <element NCVar="ter" cfVarName="mterh" Name="Model terrain height" >
@@ -195,7 +195,7 @@
 		    <id bitsPerValue ="11" />
             </template>
         </element>
-        <element NCVar="uzonal" cfVarName="u" Name="u-component of wind  (m s-1)" >
+<element NCVar="uzonal" cfVarName="u" Name="u-component of wind  (m s-1)" >
             <template def="0">
                     <id discipline="0" />
                     <id parameterCategory="2" />
