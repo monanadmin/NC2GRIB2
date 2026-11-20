@@ -15,14 +15,14 @@ else
 	export NC2GRIB_DIR=../..
 fi
 
-dirin=./datain
+dirin=../datain
 dirout=./dataout
 mkdir -p $dirout
 resolution='x5898242L55'
 fileout=$dirout/MONAN_DIAG_G_POS_GFS_%Y4%M2%D2%H2_%y4%m2%d2%h2.$resolution
 
 start_time=2026082800
-for f in $(seq 12 12 23 ) ;do
+for f in $(seq 0 6 30 ) ;do
     fff=$(printf "%03d\n" $f )
     source ./get_date.sh ${start_time}${fff}
     forecast_time=$yy2$mm2$dd2$hh2
