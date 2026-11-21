@@ -4,7 +4,7 @@
 # script to generate ctl and idx files for visualisation with Grads
 #
 #-----------------------------------------------------------------------------------------
-cd  ./dataout
+cd  ../dataout
 
 # Generating  ctl and idx from grib2 files
 for dh in  2806  ; do
@@ -13,5 +13,5 @@ for dh in  2806  ; do
 done
 
 # using predefined ctl to generate idx
-cp ../plotting/MONAN_DIAG_G_POS_GFS_2026082800_template.x5898242L55.grib2.ctl .
+cp ../GS_examples/MONAN_DIAG_G_POS_GFS_2026082800_template.x5898242L55.grib2.ctl .
 gribmap -i ./MONAN_DIAG_G_POS_GFS_2026082800_template.x5898242L55.grib2.ctl
