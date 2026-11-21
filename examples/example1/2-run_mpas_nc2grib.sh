@@ -7,7 +7,13 @@ if [[ $a == *"egeon"* ]]; then
 	export NFDIR=/opt/ohpc/pub/libs/gnu9/openmpi4/netcdf-fortran/4.5.3
 	export NC2GRIB_DIR=../..
 elif [[ $a == *"ian"* ]]; then
-    module load cray-netcdf-hdf5parallel/4.9.0.15
+    module swap PrgEnv-cray/8.6.0 PrgEnv-gnu
+    module load cray-netcdf/4.9.0.15
+    #module load cray-netcdf-hdf5parallel/4.9.0.15
+    module load grads
+    module load cdo2
+    module load wgrib2
+    module list
     module load libfabric
     export NFDIR=${NETCDF_DIR}
     export NC2GRIB_DIR=../..
