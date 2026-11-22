@@ -11,7 +11,7 @@
         -->
 
     </product>
-    <settings tablesVersion_default="28"/> <!-- shoud be version 28. but set as 4 for grads visualisation -->
+    <settings tablesVersion_default="28"/>
     <nc2grib2>
         <!--
           <element NCVar="ter" cfVarName="mterh" Name="Model terrain height" >

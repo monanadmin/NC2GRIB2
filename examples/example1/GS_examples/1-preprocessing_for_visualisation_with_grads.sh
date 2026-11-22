@@ -4,6 +4,7 @@
 # script to generate ctl and idx files for visualisation with Grads
 #
 #-----------------------------------------------------------------------------------------
+cp g2ctl ../dataout
 cd  ../dataout
 
 # Generating  ctl and idx from grib2 files
