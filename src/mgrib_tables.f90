@@ -114,34 +114,34 @@ subroutine init_parm2(parm_table,bitsPerValue_in)
            ! --------------
             !var(i)%indicator_tsp=.false.  !Using in template definition 4.8
             var(i)%bitsPerValue=Default_bitsPerValue
-
         else
             op=.false.
         end if!}
       end if !}
 
       if ((var(i)%template==0).and.(op)) then !{
-      !----------------------------------------
+      !--------------------------------------------------------------
       ! PRODICT DEFINITION TEMPLATE 4.0
       ! Analysis of forecast at a horizontal level
-      !----------------------------------------
-      !Oct. Contents
-      !-10 Parameter category (see Code table 4.1)
-      !-11 Parameter number (see Code table 4.2)
-      !12 Type of generating process (see Code table 4.3)
-      !13 Background generating process identifier (defined by originating centre)
-      !14 Analysis or forecast generating process identifier (defined by originating centre)
-      !15–16 Hours of observational data cut–off after reference time (see Note)
-      !17 Minutes of observational data cut–off after reference time
-      !18 Indicator of unit of time range (see Code table 4.4)
-      !19–22Forecast time in units defined by octet 18
-      !-23 Type of first fixed surface (see Code table 4.5)
-      !-24 Scale factor of first fixed surface
-      !-25–28Scaled value of first fixed surface
-      !29 Type of second fixed surface (see Code table 4.5)
-      !30 Scale factor of second fixed surface
-      !31–34Scaled value of second fixed surface
-      !-------------------------------------------
+      !-------------------------------------------------------------
+      !Oct.  |Contents
+      !------+------------------------------------------------------
+      ! 10   |Parameter category (see Code table 4.1)
+      ! 11   |Parameter number (see Code table 4.2)
+      ! 12   |Type of generating process (see Code table 4.3)
+      ! 13   |Background generating process identifier (defined by originating centre)
+      ! 14   |Analysis or forecast generating process identifier (defined by originating centre)
+      !15–16 |Hours of observational data cut–off after reference time (see Note)
+      !17    |Minutes of observational data cut–off after reference time
+      !18    |Indicator of unit of time range (see Code table 4.4)
+      !19–22 |Forecast time in units defined by octet 18
+      !-23   |Type of first fixed surface (see Code table 4.5)
+      !-24   |Scale factor of first fixed surface
+      !-25–28|Scaled value of first fixed surface
+      !29    |Type of second fixed surface (see Code table 4.5)
+      !30    |Scale factor of second fixed surface
+      !31–34 |Scaled value of second fixed surface
+      !---------------------------------------------------------------
         var(i)%bitsPerValue=Default_bitsPerValue
         do j=1,no_attribs
           ! write(*,*) i,"< template 4.0 >",trim(attribs(1,j)),'<=',trim(attribs(2,j))
@@ -202,6 +202,16 @@ subroutine init_parm2(parm_table,bitsPerValue_in)
          !59–nn | These octets are included only if n > 1, where nn = 46 + 12 x n
          !59–70 | As octets 47 to 58, next innermost step of processing
          !71–nn | Additional time range specifications, included in accor
+         !---------------------------------------------------------------------
+         ! Notes:
+         ! (2) The reference time in section 1 and the forecast time together define the beginning of the overall time interval.
+         ! (3) An increment of zero means that the statistical processing is the result of a continuous (or near–continuous) process,
+         !     not the processing of a number of discrete samples. Examples of such continuous processes are the temperatures measured by analogue
+         !     maximum and minimum thermometers or thermographs, and the rainfall measured by a rain gauge.
+         ! (4) The reference and forecast times are successively set to their initial values plus or minus
+         !     the increment, as defined by the type of time increment (one of octets 48, 60, 72, ...).
+         !     For all but the innermost (last) time range, the next inner range is then processed using
+         !     these reference and forecast times as the initial reference and forecast times.
         
          do j=1,no_attribs
            !  write(*,*) i,"< template 4.8 >",trim(attribs(1,j)),'<=',trim(attribs(2,j))
@@ -212,6 +222,7 @@ subroutine init_parm2(parm_table,bitsPerValue_in)
              if (trim(attribs(1,j))=="scaleFactorOfFirstFixedSurface") var(i)%sFactor_FFS=val(attribs(2,j))
              if (trim(attribs(1,j))=="scaledValueOfFirstFixedSurface") var(i)%sValue_FFS=val(attribs(2,j))
              if (trim(attribs(1,j))=="timeInterval") var(i)%time_interval=val(attribs(2,j))
+             if (trim(attribs(1,j))=="typeOfStatisticalProcessing") var(i)%StatisticalP=val(attribs(2,j))
 	     if (bitsPerValue_in==0) then 
 		     if (trim(attribs(1,j))=="bitsPerValue") var(i)%bitsPerValue=val(attribs(2,j))
              end if 

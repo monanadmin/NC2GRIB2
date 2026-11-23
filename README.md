@@ -1,4 +1,4 @@
-# MPAS_NC2GRIB2 ( Version 2.4 )
+# MPAS_NC2GRIB2 ( Version 2.5)
 
 This software reads MONAN data files in netcdf format and writes them into FM92-GRIB2 
 
@@ -16,9 +16,9 @@ To use other fortran compilers or other compiler options, edit makefile_config_l
 
 For informations about compilation in the supercomputer environments of INPE/CPTEC,  see "special compilation instructions" or click [ here ](https://github.com/GCC-DIMNT-CPTEC/tools/blob/develop/mpas_nc2grib2/special_compilation_instructions.md)
 
-### 1.2 - Notes about version 2.4
+### 1.2 - Notes about version 2.5
 
-The present version is prepared to be compiled with  ECCODES lib version 2.4. The Product Definition Templates number acepted by this version are 
+The present version is prepared to be compiled with  ECCODES lib version 2.34.0 The Product Definition Templates number acepted by this version are 
    0 - 
    8 -  
 

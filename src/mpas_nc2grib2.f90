@@ -22,7 +22,9 @@ program mpas_nc2grib2
 ! 2025-10-22  Improviment: The regular_grid function was included 
 ! 2026-07-29  Improviment: Inclusion of test if ECCODES_DIR is defined to read sample file
 ! 2026-10-26  V2.3 Improviment: Compression-Using-bit-per-value-definitionnclusion of definition
-! 2026-10-28  V2.4 Important Modification: Otimization of memory space: reading nc and write grib2 per variable
+! 2026-10-28  V2.4 Important Modification: Otimization of memory space: reading nc and write grib2 per variable.
+! 2026-11-19  V2.5 The new version of nc2grib.xml uses more appropriate parameters to describe templates 0 and 8.
+!             Note: In this version, only continuous accumulations are processed for template 8.
   use netcdf
   use stringflib
   use datelib
@@ -154,7 +156,7 @@ program mpas_nc2grib2
        print *,"|--------------------------------------------------------------+"
        print *,"| mpas_nc2grib2.x                                              |"
        print *,"|--------------------------------------------------------------+"
-       print *,"| MCTI-INPE (2026-10-28) V. 2.4                                |"
+       print *,"| MCTI-INPE (2026-11-19) V 2.5                                 |"
        print *,"|--------------------------------------------------------------+"
 
       if (x1*x2*x3==0) then
@@ -500,6 +502,7 @@ program mpas_nc2grib2
     end if
 
      if (i>0) then !{
+     print *,"...Writing template=",var(i)%Template
     !------------------------------------------
     ! Saving selected variables  in grib2 format
     !-------------------------------------------

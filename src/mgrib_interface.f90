@@ -36,6 +36,7 @@ module mgrib_interface
    integer           ::pCat
    integer           ::pNum
    integer           ::tflevel
+   integer           ::StatisticalP  !typeOfStatisticalProcessing
    integer           ::time_interval !Time Interval 
    real              ::sFactor_FFS   !scaleFactorOfFirstFixedSurface
    real              ::sValue_FFS    !scaledValueOfFirstFixedSurface
@@ -182,7 +183,6 @@ module mgrib_interface
 
     call codes_set(igrib,"tablesVersion", tablesVersion_default,status)
 	call codes_set(igrib,"packingType",packingType)
-	call codes_set(igrib,"productDefinitionTemplateNumber",parm_id%Template)
 	call codes_set(igrib,"discipline",parm_id%Discipline)
 		!call codes_get(igrib,"editionNumber",editionNumber,status)
 		!Section 1
@@ -197,45 +197,61 @@ module mgrib_interface
 		call codes_set(igrib,"parameterNumber",parm_id%PNum)
 		!Section 4
 		if (step>0) then
-			call codes_set(igrib,"typeOfGeneratingProcess",2)
+			call codes_set(igrib,"typeOfGeneratingProcess",2) ! Forecast
 		end if 
-		
-	!----------------------------------------------------------------------------
-	! Step range definitions
-	! This software performe the calculation of endstep and step range from time_interval
-	! as follow:
-	!
-	! a) Case time_interval (+) :
-	!   endStep = current step (step)
-	!   initStep="endStep"-"Time_interval" (hours)
-	! b) Case time_inteval = 0 : Instantaneous  stepRange=step
-	!
-    ! c) Case time_interval (-) : = -1 ! Accumulation since the start time
-	!   initStep = 0  (analysis)
-	!   endStep=current step (step)
-	!   stepRange="0"-"endStep"
-	!----------------------------------------------------------------------------
-	!{
+	if (parm_id%Template==0) then
+		!-------------------------------------------------------
+		!Product definition template 4.0 - See mgrib_table.f90
+		!-------------------------------------------------------
+		call codes_set(igrib,"stepType","instant")
+		call codes_set(igrib,"stepTypeInternal","instant")
+		call codes_set(igrib,"stepRange",step)
+		call codes_set(igrib,"forecastTime",step)
+		call codes_set(igrib,"productDefinitionTemplateNumber",0)
+
+	elseif (parm_id%Template==8) then
+		!----------------------------------------------------------------------------------
+        !  PRODUCT DEFINITION TEMPLATE 4.8
+        !  – average, accumulation and/or extreme values or other statistically processed
+        !  values at a horizontal level or in a horizontal layer in a continuous or
+        ! non–continuous time interval
+        !----------------------------------------------------------------------------------
+        !See mgrib_table.f90
+        !----------------------------------------------------------------------------
+		!
+		! a) Case time_interval (+) :
+		!   endStep = current step (step)
+		!   initStep="endStep"-"Time_interval" (hours)
+		! b) Case time_inteval = 0 : Instantaneous  stepRange=step
+		!
+		! c) Case time_interval (-) : = -1 ! Accumulation since the start time
+		!   initStep = 0  (analysis)
+		!   endStep=current step (step)
+		!   stepRange="0"-"endStep"
+		!----------------------------------------------------------------------------
+
+		call codes_set(igrib,"productDefinitionTemplateNumber",8)
+		call codes_set(igrib,"typeOfStatisticalProcessing",parm_id%StatisticalP) ! 1 = Accumulation (Tabela 4.10)
+		call codes_set(igrib,"indicatorOfUnitOfTimeRange",1) ! 1 = Hora (Tabela 4.4)
+
 		if (parm_id%time_interval>0) then
-			endStep=step
-			initStep=endstep-parm_id%time_interval
-			if (initStep<0) initStep=0 
-				write(stepRange,'(i3,"-",i3)')initStep,endStep
-				call codes_set(igrib,"stepRange",stepRange)
-				call codes_set(igrib,"endStep",endStep)
-			elseif (parm_id%time_interval==0) then
-				call codes_set(igrib,"stepRange",step)
-			else   ! Accumulation since the start time
+			initStep=step-parm_id%time_Interval
+			call codes_set(igrib,"lengthOfTimeRange",parm_id%time_Interval) ! ( hours)
+			call codes_set(igrib,"forecastTime",initStep) ! Definir o início do intervalo de processamento estatístico
+		elseif (parm_id%time_interval==0) then
+			call codes_set(igrib,"lengthOfTimeRange",0) ! (hours)
+	 		call codes_set(igrib,"forecastTime",step)
+		else ! Accumulation since the start time
+			call codes_set(igrib,"lengthOfTimeRange",step) ! (hours)
+			call codes_set(igrib,"forecastTime",0) ! Definir o início do intervalo de processamento estatístico
+		end if
+		!call codes_set(igrib,"forecastTime",0) ! Definir o início do intervalo de processamento estatístico
 
-			endStep=step
-			write(stepRange,'("0-",i3)')endStep
-			call codes_set(igrib,"stepRange",stepRange)
-			call codes_set(igrib,"endStep",endStep)
-		endif
+	else
+		print *,":MGRIB_INTERFACE:Error! Template Number not suported in this version =",parm_id%Template
+		stop
+	end if
 
-	!*** step type = "accuml, ave, instant
-	!*** codes_set__nc(Number of bit..... )
-	!}
 
 	!# Code table 4.5: Fixed surface types and units
 	!print *,"cfVarName=",parm_id%cfVarname
