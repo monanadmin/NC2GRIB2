@@ -32,10 +32,10 @@ for dh in  0106  ; do
     g2ctl MONAN_DIAG_R_POS_GFS_2024050100_202405${dh}.00.00.x23592962.REG.AMS_CARL55.grib2  >  MONAN_DIAG_R_POS_GFS_2024050100_202405${dh}.00.00.x23592962.REG.AMS_CARL55.ctl
     gribmap -i MONAN_DIAG_R_POS_GFS_2024050100_202405${dh}.00.00.x23592962.REG.AMS_CARL55.ctl
 done
-exit
+
 # using predefined ctl to generate idx - Template from initial time to 024 h forecast
-cp ../GS_examples/MONAN_DIAG_G_POS_GFS_2026082800_template.x5898242L55.grib2.ctl .
-gribmap -i ./MONAN_DIAG_G_POS_GFS_2026082800_template.x5898242L55.grib2.ctl
+cp ../GS_examples/MONAN_DIAG_R_POS_GFS_2024050100_template.00.00.x23592962.REG.AMS_CARL55.ctl .
+gribmap -i ./MONAN_DIAG_R_POS_GFS_2024050100_template.00.00.x23592962.REG.AMS_CARL55.ctl
 echo '-------------------------------------------------------------------------------'
 echo 'Return to ../dataout directory to see the results'
 echo 'use grads -lc "open <name of ctl file>  to open the results with Grads software"'
