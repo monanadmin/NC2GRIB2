@@ -1,6 +1,10 @@
 # MPAS_NC2GRIB2 ( Version 2.5)
 
-This software reads MONAN data files in netcdf format and writes them into FM92-GRIB2 
+This software reads MONAN data files in netcdf format and writes them WMO GRIB2  standard.
+
+This software consists of a Fortran 90 (F90) interface between the NetCDF and ecCodes libraries, which uses a predefined XML configuration to control data conversion. This XML file contains the identification of all NetCDF variables intended for conversion, along with their corresponding correct identifiers, in accordance with the World Meteorological Organization (WMO) GRIB2 standard table.
+The development of these configurations takes into account the specific processing required for each variable, as well as the standards established in WMO Manual 308, thereby ensuring proper encoding. The result is a set of compressed files that require significantly less storage space and/or transmission time. These files can be read and used by any software system, as they comply with the WMO standard.
+
 
 ## 1-Compilation Instructions
 
