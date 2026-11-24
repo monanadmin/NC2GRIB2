@@ -15,6 +15,11 @@ elif [[ $a == *"ian"* ]]; then
     module load wgrib2
     module list
     module load libfabric
+    module load gcc-native/13.2
+    module load cray-netcdf-hdf5parallel/4.9.0.15
+    module load libfabric
+    module load PrgEnv-gnu/8.6.0
+    module load eccodes/2.34.0
     export NFDIR=${NETCDF_DIR}
     export NC2GRIB_DIR=../..
 else

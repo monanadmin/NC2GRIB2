@@ -23,7 +23,7 @@ cd ../datain
 wget -nc ftp1.cptec.inpe.br/avalia/avalia/samples/monan/global/MONAN_DIAG_G_POS_GFS_2026082800_2026082800.00.00.x5898242L55.nc
 wget -nc ftp1.cptec.inpe.br/avalia/avalia/samples/monan/global/MONAN_DIAG_G_POS_GFS_2026082800_2026082806.00.00.x5898242L55.nc
 wget -nc ftp1.cptec.inpe.br/avalia/avalia/samples/monan/global/MONAN_DIAG_G_POS_GFS_2026082800_2026082812.00.00.x5898242L55.nc
-wget -nc ftp1.cptec.inpe.br/avalia/avalia/samples/monan/global/MONAN_DIAG_G_POS_GFS_2026082800_2026082819.00.00.x5898242L55.nc
+wget -nc ftp1.cptec.inpe.br/avalia/avalia/samples/monan/global/MONAN_DIAG_G_POS_GFS_2026082800_2026082818.00.00.x5898242L55.nc
 wget -nc ftp1.cptec.inpe.br/avalia/avalia/samples/monan/global/MONAN_DIAG_G_POS_GFS_2026082800_2026082900.00.00.x5898242L55.nc
 # Option -nc : no clobber
 
