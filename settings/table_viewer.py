@@ -17,6 +17,7 @@ print ("-----------------------------------------------------------")
 print ("Version=",version)
 print ("Definition Path=",definition_path)
 print ("-----------------------------------------------------------")
+print ("4.0 - Product definition template number")
 print ("4.2 - Parameter number by product discipline and parameter category")
 print ("4.3 - Type of generating process")
 print ("4.5 - Fixed surface types and units")
@@ -65,6 +66,16 @@ if (op==4.3) :
     content = file.read()
     print(content)
     file.close()
+if (op==4.0) :
+    filename=definition_path+"/4.0.table"
+    print ("-----------------------------------------------------------")
+    print ("table=",filename)
+    print ("-----------------------------------------------------------")
+    file = open(filename, "r")
+    content = file.read()
+    print(content)
+    file.close()
+
 
 if (op==4.5) :
     filename=definition_path+"/4.5.table"
