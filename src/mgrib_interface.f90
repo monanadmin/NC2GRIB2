@@ -36,9 +36,11 @@ module mgrib_interface
    integer           ::pCat
    integer           ::pNum
    integer           ::tflevel
+   integer           ::StatisticalP  !typeOfStatisticalProcessing
    integer           ::time_interval !Time Interval 
    real              ::sFactor_FFS   !scaleFactorOfFirstFixedSurface
    real              ::sValue_FFS    !scaledValueOfFirstFixedSurface
+   integer           ::bitsPerValue
    character(len=8)  ::cfVarName
    character(len=32) ::ncVarName
    character(len=250)::VarName
@@ -111,8 +113,6 @@ module mgrib_interface
 	packingType=grib_def%packingType
 
 	write(outfile,'(a,".grib",i1)')trim(grib_file),editionNumber
-!	print *,":MGRIB_INTERFACE: output filename = ",trim(outfile)
-	!call codes_grib_open_file(out1,grib_file,'w')
 	call codes_open_file(out1,outfile,'w')
 	!call codes_grib_new_from_samples(igrib, "./sh_sfc_grib2")   !Example Sherical Hamonics - sfc grib 2
 	!call codes_grib_new_from_samples(igrib,"./regular_ll_sfc_grib2")
@@ -120,29 +120,31 @@ module mgrib_interface
 	call codes_set(igrib, "tablesVersion", tablesVersion_default,status)
 	call codes_set(igrib,'editionNumber',grib_def%edition)
 
-	!----------
+	!----------------------------------
 	!section 1
-	!---------
+	!----------------------------------
+	! subcenter
+	! localTableVersion
+	! significanceOfReferenceTime
+	!-----------------------------
+
 	call codes_set(igrib,'centre',46)
-	!subcenter
-	!localTableVersion
-	!significanceOfReferenceTime
 	call codes_set(igrib,'date',grib_def%idate)
 	call codes_set(igrib,'time',grib_def%itime)
 	call codes_set(igrib,'productionStatusOfProcessedData',grib_def%productionStatus)
 	!productionStatusOfProcessedData
 	!typeOfProcessedData
 
-	!---------
+	!----------------------------------------------
 	!section 3
-	!---------
+	!----------------------------------------------
 	!source_Of_gridDefinition
 	!NumberOfDataPoints
 	!NumberOfOctectsForNumberOfDataPoints
 	!12-interpretationOfNumberOfPoints
 	!13-14 _GridDefinitionTemplateNumber
 	!15    - shapeOfTheEarth
-
+        !-----------------------------------------------
 	call codes_set(igrib,"Ni",Ni) !31-34
 	call codes_set(igrib,"Nj",Nj) !35-36
 	!39-42 BasicAngleOfTheinitialProcutionDomain
@@ -181,7 +183,6 @@ module mgrib_interface
 
     call codes_set(igrib,"tablesVersion", tablesVersion_default,status)
 	call codes_set(igrib,"packingType",packingType)
-	call codes_set(igrib,"productDefinitionTemplateNumber",parm_id%Template)
 	call codes_set(igrib,"discipline",parm_id%Discipline)
 		!call codes_get(igrib,"editionNumber",editionNumber,status)
 		!Section 1
@@ -196,32 +197,61 @@ module mgrib_interface
 		call codes_set(igrib,"parameterNumber",parm_id%PNum)
 		!Section 4
 		if (step>0) then
-			call codes_set(igrib,"typeOfGeneratingProcess",2)
+			call codes_set(igrib,"typeOfGeneratingProcess",2) ! Forecast
 		end if 
-		
-	!------------------------
-	! Step range definitions
-	!------------------------
-	!{
+	if (parm_id%Template==0) then
+		!-------------------------------------------------------
+		!Product definition template 4.0 - See mgrib_table.f90
+		!-------------------------------------------------------
+		call codes_set(igrib,"stepType","instant")
+		call codes_set(igrib,"stepTypeInternal","instant")
+		call codes_set(igrib,"stepRange",step)
+		call codes_set(igrib,"forecastTime",step)
+		call codes_set(igrib,"productDefinitionTemplateNumber",0)
+
+	elseif (parm_id%Template==8) then
+		!----------------------------------------------------------------------------------
+        !  PRODUCT DEFINITION TEMPLATE 4.8
+        !  – average, accumulation and/or extreme values or other statistically processed
+        !  values at a horizontal level or in a horizontal layer in a continuous or
+        ! non–continuous time interval
+        !----------------------------------------------------------------------------------
+        !See mgrib_table.f90
+        !----------------------------------------------------------------------------
+		!
+		! a) Case time_interval (+) :
+		!   endStep = current step (step)
+		!   initStep="endStep"-"Time_interval" (hours)
+		! b) Case time_inteval = 0 : Instantaneous  stepRange=step
+		!
+		! c) Case time_interval (-) : = -1 ! Accumulation since the start time
+		!   initStep = 0  (analysis)
+		!   endStep=current step (step)
+		!   stepRange="0"-"endStep"
+		!----------------------------------------------------------------------------
+
+		call codes_set(igrib,"productDefinitionTemplateNumber",8)
+		call codes_set(igrib,"typeOfStatisticalProcessing",parm_id%StatisticalP) ! 1 = Accumulation (Tabela 4.10)
+		call codes_set(igrib,"indicatorOfUnitOfTimeRange",1) ! 1 = Hora (Tabela 4.4)
+
 		if (parm_id%time_interval>0) then
-			endStep=step
-			initStep=endstep-parm_id%time_interval
-			if (initStep<0) initStep=0 
-				write(stepRange,'(i3,"-",i3)')initStep,endStep
-				call codes_set(igrib,"stepRange",stepRange)
-				call codes_set(igrib,"endStep",endStep)
-			elseif (parm_id%time_interval==0) then
-				call codes_set(igrib,"stepRange",step)
-			else   ! Accumulation since the start time
-			endStep=step 
-			write(stepRange,'("0-",i3)')endStep
-			call codes_set(igrib,"stepRange",stepRange)
-			call codes_set(igrib,"endStep",endStep)
-		endif 	
-		
-	!*** step type = "accuml, ave, instant
-	!*** codes_set__nc(Number of bit..... )
-	!}
+			initStep=step-parm_id%time_Interval
+			call codes_set(igrib,"lengthOfTimeRange",parm_id%time_Interval) ! ( hours)
+			call codes_set(igrib,"forecastTime",initStep) ! Definir o início do intervalo de processamento estatístico
+		elseif (parm_id%time_interval==0) then
+			call codes_set(igrib,"lengthOfTimeRange",0) ! (hours)
+	 		call codes_set(igrib,"forecastTime",step)
+		else ! Accumulation since the start time
+			call codes_set(igrib,"lengthOfTimeRange",step) ! (hours)
+			call codes_set(igrib,"forecastTime",0) ! Definir o início do intervalo de processamento estatístico
+		end if
+		!call codes_set(igrib,"forecastTime",0) ! Definir o início do intervalo de processamento estatístico
+
+	else
+		print *,":MGRIB_INTERFACE:Error! Template Number not suported in this version =",parm_id%Template
+		stop
+	end if
+
 
 	!# Code table 4.5: Fixed surface types and units
 	!print *,"cfVarName=",parm_id%cfVarname
@@ -266,6 +296,8 @@ module mgrib_interface
 				values(nb)=par(i,j)
 			end do
 		end do
+	if (parm_id%bitsPerValue/=32) call codes_set(igrib,"bitsPerValue",parm_id%bitsPerValue)
+	!call codes_set(igrib,"decimal`ScaleFactor",0)  !No Effect
 	call codes_set(igrib,"values",values)
 	deallocate(values)
 	call codes_write(igrib,out1)
@@ -328,6 +360,7 @@ subroutine set_bitmap(data,missing,bitmap)
 !that grid point
 !• When decoding, you can directly query the bitmap to
 !discover missing data values
+
 !14EUROPEAN CENTRE FOR MEDIUM-RANGE WEATHER FORECASTS October 29, 2014
 !Bitmap: Practicals
 !cd $SCRATCH

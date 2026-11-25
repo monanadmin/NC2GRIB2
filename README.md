@@ -1,6 +1,10 @@
-# MPAS_NC2GRIB2
+# MPAS_NC2GRIB2 ( Version 2.5)
 
-This software reads MONAN data files in netcdf format and writes them into FM92-GRIB2 
+This software reads MONAN data files in netcdf format and writes them WMO GRIB2  standard.
+
+This software consists of a Fortran 90 (F90) interface between the NetCDF and ecCodes libraries, which uses a predefined XML configuration to control data conversion. This XML file contains the identification of all NetCDF variables intended for conversion, along with their corresponding correct identifiers, in accordance with the World Meteorological Organization (WMO) GRIB2 standard table.
+The development of these configurations takes into account the specific processing required for each variable, as well as the standards established in WMO Manual 308, thereby ensuring proper encoding. The result is a set of compressed files that require significantly less storage space and/or transmission time. These files can be read and used by any software system, as they comply with the WMO standard.
+
 
 ## 1-Compilation Instructions
 
@@ -15,6 +19,12 @@ To compile MPAS_NC2GRIB on linux, it is necessary to previously install of **ECC
 To use other fortran compilers or other compiler options, edit makefile_config_lnx 
 
 For informations about compilation in the supercomputer environments of INPE/CPTEC,  see "special compilation instructions" or click [ here ](https://github.com/GCC-DIMNT-CPTEC/tools/blob/develop/mpas_nc2grib2/special_compilation_instructions.md)
+
+### 1.2 - Notes about version 2.5
+
+The present version is prepared to be compiled with  ECCODES lib version 2.34.0 The Product Definition Templates number acepted by this version are 
+   0 - 
+   8 -  
 
 
 ## 2 - Setting environment variables
@@ -50,26 +60,42 @@ Example
 
 # 4 - Running the examples for test
 
-## 4.1 - example1 - Generic example
-Generic scripts to run MPAS_NC2GRIB software with examples is in the  "examples/example1" diretory.  So, go to the "examples/example1" and run the followed scripts:
+mpas_nc2grib2.x suport some different compression options during grib2 codification. The followed examples are desined to present those possibilities, as well as, use of the software on diferents platforms, like PC linux environmet, the supercomputer envenronment of INPE/CPTEC (Jaci), etc.
 
- - 1-download_sample_data.sh: This script download a set off MPAS_MONAN NETCDF file from ftp1.cptec.inpe.br and places them in **./datain** 
- 	- Type **ls -ltr ./datain** to verify if the files were download.
+## 4.1 - example1 - Basic  example
+The pourpose of this example is check if the MPAS_NC2GRIB2 was correctly installed and running in the system.  The software is used with defult configurations:
 
--  2-running mpas_nc2grib.x: Use one of followed scripts to run mpas_nc2grib.x:
+   a) **Compressiong configurations:**  grib simple packed  type associated with bit-per-value compression strategy, in acoordance with WMO regulation (____) 
 
-	- a) run_mpas_nc2grib2.sh (with grid simple packing type)
-	- b) run_mpas_nc2grib2_cssds.sh (with ccsds packing type - more compressed option)
+   b) 
+   
+   "examples/example1" and run the followed scripts:
+
+ - 1-download_sample_data.sh: This script download a set off MPAS_MONAN NETCDF file places them in **../datain** 
+ 	- Type **ls -ltr ../datain** to verify if the files were download.
+
+-  2-running mpas_nc2grib.x: Use the followed scripts to run mpas_nc2grib.x:
+
+	2-run_mpas_nc2grib2.sh (with grid simple packing type and default compression)
+	
 
 The scripts runs MPAS_NC2GRIB to convert the MPAS_FILE in datain to GRIB2 file in dataout.  
 
-		MONAN_DIAG_G_POS_GFS_2024070900_2024070900.x1024002L55.grib2
-		MONAN_DIAG_G_POS_GFS_2024070900_2024070903.x1024002L55.grib2
-		MONAN_DIAG_G_POS_GFS_2024070900_2024070906.x1024002L55.grib2
-		MONAN_DIAG_G_POS_GFS_2024070900_2024070912.x1024002L55.grib2
-		MONAN_DIAG_G_POS_GFS_2024070900_2024071000.x1024002L55.grib2
+		MONAN_DIAG_G_POS_GFS_2026082800_2026082800.00.00.x5898242L55.grib2
+		MONAN_DIAG_G_POS_GFS_2026082800_2026082806.00.00.x5898242L55.grib2
+		MONAN_DIAG_G_POS_GFS_2026082800_2026082812.00.00.x5898242L55.grib2
+		MONAN_DIAG_G_POS_GFS_2026082800_2026082818.00.00.x5898242L55.grib2
+		MONAN_DIAG_G_POS_GFS_2026082800_2026082900.00.00.x5898242L55.grib2
+		
   - Type **ls -ltr ./dataout** to verify if the grib files were generated 
-  - 3-grib_decoding_test.sh: This script do the inverse process, i.e. decoding the grib file to nc as well as into other formats. 
+  - 3-grib_decoding_test.sh: This script do the inverse process, i.e. decoding the grib2 file into txt file using ECCODES GRIB_DUMP 
+
+  - 4 Optional scripts are included in this example in the followed directories
+     a) GS_examples :  Contais examples of scripts  to pre-processing grib2 data to be open with Grads Software to plotting maps
+	 b) CDO_examples :  Contais examples how to use CDO tools to process some tests,  conversions and domain selections
+
+   
+   
 
 
 

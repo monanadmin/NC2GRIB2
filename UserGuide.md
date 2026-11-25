@@ -4,18 +4,47 @@ This document describe how to use MPAS_NC2GRIB2  software reads MONAN data files
 
 ## 1-Introduction
 
-The MPAS_NC2GRIB2 is a software to convert data from MPAS/MONAN in netcdf format to GRIB2 format using a **configuration table**, that associates each variable identifier in netcdf, to the variables or conversion processes required for correct encoding in GRIB2.   So Spetiall attentions is required to this table, that is described in the item 3
+The MPAS_NC2GRIB2 is a software to convert data from MPAS/MONAN in netcdf format to GRIB2 format using a **predefined XML configuration table**, that associates each variable identifier in netcdf, to the variables or conversion processes required for correct encoding in GRIB2.   So Spetiall attentions is required to this XML configuration table, that is described in the item 3
 
-Other importat aspected, it that the software was writed in fortran 90 and use netcdf librarie and eccodes libraries. Some functionalitis of eccodes is present, one of that is the use of the diferents packing type, witch is associated with different file compression.  In the present version, there a are two options, as show in the next topic
+Other importat aspected:
+
+### 1.1 Types of data compression
+
+There are differents optios to encode grib2 with differents data compressions. In the present version the options are:
+
+-1 - grid simple packing type (with specification of bitwith per variable for compression) - In this case the bitwith for each variable are indicated in XML configuration file, in acordance of precisions required for each variable and regulations _____
+
+-2 - grid simple packing type (with  a specific  bitwith for all varibles) Default=32 - In this case the bitwith indicated in XML for each variable are ignored and a fix bitwith (Default = 32) are used insted. It is the less compressed type, but keep the original precision  
+
+-3 - grid_ccsds packing type 
+
+### 1.2 Product Definition Template Number 
+
+The templates redefine the space of  GRIB2 sections 4 to acomodate adicional informatios necessay to define more complex type of data.  
+
+For example:
+
+The Template 0 is the  basic template, desined to represent instantaneous variables like Pressure, Temperature, Humidth, etc.   Other variables, for example, Accumulated precipitatio, requere more space to stored aditional informatio like the period of processing. 
+
+The list of all GRIB2 template are in the GRIB2 table 4.0. The detailes about the internal structure of each template are in WMO GRIB2
+
+The present version of this program suport the templates 0  and 8 only:
+
+**-Template 0-**  Analysis or forecast at a horizontal level or in a horizontal layer at a point in time
+
+**-Template 8-**  Average, accumulation, extreme values or other statistically processed values at a horizontal level or in a horizontal layer in a continuous or non-continuous time interval. 
+
+
+
 
 ## 2 - Options and usege
 To see the usage options for mpas_nc2grib2 , simply type mpas_nc2grib2.x at the command line.
 
-
-	 | mpas_nc2grib2.x                                              |
  	|--------------------------------------------------------------+
- 	| MCTI-INPE (2024-11-06) V. 1.1                                |
+ 	| mpas_nc2grib2.x                                              |
  	|--------------------------------------------------------------+
+ 	| MCTI-INPE (2026-11-19) V 2.5                                 |
+	|--------------------------------------------------------------+
  	| Use mpas_nc2grib2.x -i <filename.nc> -o <outfile_basename>   |
  	|                          -s yyyymmddhh -f fff  { Options }   |
  	|                                                              |
@@ -23,15 +52,25 @@ To see the usage options for mpas_nc2grib2 , simply type mpas_nc2grib2.x at the 
  	|    -f forecast time  (fff)                                   |
  	|                                                              |
  	| Options:                                                     |
-	|    -p :packing type                                          |
+ 	|    -p :packing type                                          |
  	|        :0=  grid_simple                                      |
  	|        :1=  grid_ccsds                                       |
  	|        (Default: 0)                                          |
  	|                                                              |
- 	|    -c :<Configuration table name>                            |
- 	|        (Default= nc2grib.2.csv )                             |
+ 	|    -b :Set the Bits width for all parameters                 |
+ 	|        (Ex.: -b for 32 bits or specify the bit-width)        |
+ 	|                                                              |
+ 	|    -c :<Configuration table name in settings folder >        |
+ 	|        (Default= nc2grib.2.xml)                              |
+ 	|     or                                                       |
+ 	|                                                              |
+ 	|    -C :<Complete path to the configuration table>            |
+ 	|                                                              |
+ 	|    -v : Verbosity  >=0 (Default 3)                           |
+ 	|                                                              |
  	|--------------------------------------------------------------+
 
+	
  It is important to note that the information about the start time and forecast time must be informed and this information are not rigid declared in netcdf. So the program "spected" this information as parameter and it will use in codification process as well as to create the output filename.
  
  ### 2.1 - Start time and forecast time

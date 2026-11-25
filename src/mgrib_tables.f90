@@ -17,10 +17,15 @@ module mgrib_tables
  character(len=1024)::nc2grib_dir
  contains
 
-
-subroutine init_parm2(parm_table)
+!-------------------------------------------------------------------------------------------------------------------|
+! init_parm2 | Parameters initializations from XML file                                                             |
+!-------------------------------------------------------------------------------------------------------------------|
+subroutine init_parm2(parm_table,bitsPerValue_in)
    character(len=*),intent(in)::parm_table
-
+   integer, intent(in)::bitsPerValue_in
+   
+   
+   integer:: Default_bitsPerValue
    character(len=1024)::table_name,fname
    integer::i,j
    character(len=256)::line
@@ -37,6 +42,17 @@ subroutine init_parm2(parm_table)
    integer         :: no_data
 
 
+! setting bitPerValue
+!--------------------------------------------------------------------------------------------
+! 1 - Case bitsPerValue_in=0 then uses the bitsPerValue from xml (if provided) or use 32 bits as the default
+! 2 - Case bitsPerValue_in>0 use the bitsPerValue_in as Default for all variables 
+!-----------------------------------------------------------------------------------------------------
+   if (bitsPerValue_in==0) then
+     Default_bitsPerValue=32 
+   else
+      Default_bitsPerValue=bitsPerValue_in
+   end if 
+   
    i=0
    op=.false.
    tablesVersion_default=4
@@ -50,55 +66,83 @@ subroutine init_parm2(parm_table)
 
  call xml_open(info,table_name,mustread)
  ! Check for errors
- if (xml_error(info)) then
+ if (xml_error(info)) then !{
    print *,"Error ",info," ",fname
    stop
  else
    !Start reading the file
    call xml_options(info,ignore_whitespace = .true.)
 
-   do  ! While xml_ok
+   do  ! While xml_ok !{
       call xml_get(info,tag,endtag,attribs,no_attribs,data,no_data)
-      if (xml_error(info)) then
+      if (xml_error(info)) then  !{
          print *,"!handel errors"
          exit
-      endif
+      endif 	!}
     
-      if (tag=="settings") then 
+      if (tag=="settings") then !{
         if (trim(attribs(1,1))=="tablesVersion_default") then
 	   tablesVersion_default=val(attribs(2,1))
 	   print *,"Settings: tablesVersion_Default=",tablesVersion_Default
         end if 
-      end if 
+      end if !}
 
-      if ((tag=="element")) then
-         if (.not.endtag) then
+      if ((tag=="element")) then !{
+         if (.not.endtag) then !{
             i=i+1
-            do j=1,no_attribs
+	 
+            do j=1,no_attribs !{
                !print *," Element [",i,"]",trim(attribs(1,j)),'<=',trim(attribs(2,j))
                 if (trim(attribs(1,j))=="NCVar") var(i)%ncVarName=trim(attribs(2,j))
                 if (trim(attribs(1,j))=="cfVarName") var(i)%cfVarName=trim(attribs(2,j))
                 if (trim(attribs(1,j))=="Name") var(i)%VarName=trim(attribs(2,j))
-            enddo
+            enddo !}
             write(*,'("var(",i3.3,") -> ",3(" [",A,"]"))')i,trim(var(i)%ncVarName),trim(var(i)%cfVarname),trim(var(i)%Varname)
             nvar=i
-         end if
-      end if
+         end if !}
+      end if !}
 
 
-      if ((tag=="template")) then
-        if (.not.endtag) then
-            do j=1,no_attribs
+      if ((tag=="template")) then !{
+        if (.not.endtag) then !{
+            do j=1,no_attribs !{
                 if(trim(attribs(1,j))=="def") var(i)%Template=val(attribs(2,1))
-            end do
+            end do !}
             op=.true.
+           !---------------
+           ! Default values
+           ! --------------
+            !var(i)%indicator_tsp=.false.  !Using in template definition 4.8
+            var(i)%bitsPerValue=Default_bitsPerValue
         else
             op=.false.
-        end if
-      end if
+        end if!}
+      end if !}
 
-
-      if ((var(i)%template==0).and.(op)) then
+      if ((var(i)%template==0).and.(op)) then !{
+      !--------------------------------------------------------------
+      ! PRODICT DEFINITION TEMPLATE 4.0
+      ! Analysis of forecast at a horizontal level
+      !-------------------------------------------------------------
+      !Oct.  |Contents
+      !------+------------------------------------------------------
+      ! 10   |Parameter category (see Code table 4.1)
+      ! 11   |Parameter number (see Code table 4.2)
+      ! 12   |Type of generating process (see Code table 4.3)
+      ! 13   |Background generating process identifier (defined by originating centre)
+      ! 14   |Analysis or forecast generating process identifier (defined by originating centre)
+      !15–16 |Hours of observational data cut–off after reference time (see Note)
+      !17    |Minutes of observational data cut–off after reference time
+      !18    |Indicator of unit of time range (see Code table 4.4)
+      !19–22 |Forecast time in units defined by octet 18
+      !-23   |Type of first fixed surface (see Code table 4.5)
+      !-24   |Scale factor of first fixed surface
+      !-25–28|Scaled value of first fixed surface
+      !29    |Type of second fixed surface (see Code table 4.5)
+      !30    |Scale factor of second fixed surface
+      !31–34 |Scaled value of second fixed surface
+      !---------------------------------------------------------------
+        var(i)%bitsPerValue=Default_bitsPerValue
         do j=1,no_attribs
           ! write(*,*) i,"< template 4.0 >",trim(attribs(1,j)),'<=',trim(attribs(2,j))
           if (trim(attribs(1,j))=="discipline") var(i)%discipline=val(attribs(2,j))
@@ -107,10 +151,68 @@ subroutine init_parm2(parm_table)
           if (trim(attribs(1,j))=="typeOfFirstFixedSurface") var(i)%tflevel=val(attribs(2,j))
           if (trim(attribs(1,j))=="scaleFactorOfFirstFixedSurface") var(i)%sFactor_FFS=val(attribs(2,j))
           if (trim(attribs(1,j))=="scaledValueOfFirstFixedSurface") var(i)%sValue_FFS=val(attribs(2,j))
+	  if (bitsPerValue_in==0) then 
+	  	if (trim(attribs(1,j))=="bitsPerValue") var(i)%bitsPerValue=val(attribs(2,j))
+	  end if 
           nvar=i
         enddo
-         var(i)%time_interval=0
-      elseif((var(i)%template==8).and.(op)) then
+         var(i)%time_interval=0 
+      elseif((var(i)%template==8).and.(op)) then !}{
+         !----------------------------------------------------------------------------------
+         !  PRODUCT DEFINITION TEMPLATE 4.8
+         !  – average, accumulation and/or extreme values or other statistically processed
+         !  values at a horizontal level or in a horizontal layer in a continuous or
+         ! non–continuous time interval
+         !----------------------------------------------------------------------------------
+         !17    |Minutes after reference time of data cut–off
+         !18    |Indicator of unit of time range (see Code table 4.4)
+         !19–22 |Forecast time in units defined by octet 18 (see Note 2)
+         !23    |Type of first fixed surface (see Code table 4.5)
+         !24    |Scale factor of first fixed surface
+         !25–28 |Scaled value of first fixed surface
+         !29    |Type of second fixed surface (see Code table 4.5)
+         !30    |Scale factor of second fixed surface
+         !31–34 |Scaled value of second fixed surface
+         !35–36 |Year
+         !37    |Month
+         !38    |Day
+         !39    |Hour
+         !40    |Minute
+         !41    |Second
+         !42    |n – number of time range specifications describing the time intervals used to
+         !      |calculate the statistically processed field
+         !43–46 |Total number of data values missing in statistical process
+         !      |Time of end of overall time interval
+         !-------------------------------------------------------------------------------------------
+         !47–58 |Specification of the outermost (or only) time range over which statistical
+         !      |processing is done
+         !-----------------------------------------------------------------------------------------
+         !47    |Statistical process used to calculate the processed field from the field at each time
+         !      |increment during the time range (see Code table 4.10)
+         !48    |Type of time increment between successive fields used in the statistical processing
+         !      |(see Code table 4.11)
+         !49    |Indicator of unit of time for time range over which statistical processing is done
+         !      |(see Code table 4.4)
+         !50–53 |Length of the time range over which statistical processing is done, in units defined
+         !      |by the previous octet
+         !54    |Indicator of unit of time for the increment between the successive fields used
+         !      |(see Code table 4.4)
+         !55–58 |Time increment between successive fields, in units defined by the previous octet
+         !      |(see Notes 3 and 4)
+         !59–nn | These octets are included only if n > 1, where nn = 46 + 12 x n
+         !59–70 | As octets 47 to 58, next innermost step of processing
+         !71–nn | Additional time range specifications, included in accor
+         !---------------------------------------------------------------------
+         ! Notes:
+         ! (2) The reference time in section 1 and the forecast time together define the beginning of the overall time interval.
+         ! (3) An increment of zero means that the statistical processing is the result of a continuous (or near–continuous) process,
+         !     not the processing of a number of discrete samples. Examples of such continuous processes are the temperatures measured by analogue
+         !     maximum and minimum thermometers or thermographs, and the rainfall measured by a rain gauge.
+         ! (4) The reference and forecast times are successively set to their initial values plus or minus
+         !     the increment, as defined by the type of time increment (one of octets 48, 60, 72, ...).
+         !     For all but the innermost (last) time range, the next inner range is then processed using
+         !     these reference and forecast times as the initial reference and forecast times.
+        
          do j=1,no_attribs
            !  write(*,*) i,"< template 4.8 >",trim(attribs(1,j)),'<=',trim(attribs(2,j))
              if (trim(attribs(1,j))=="discipline") var(i)%discipline=val(attribs(2,j))
@@ -120,211 +222,24 @@ subroutine init_parm2(parm_table)
              if (trim(attribs(1,j))=="scaleFactorOfFirstFixedSurface") var(i)%sFactor_FFS=val(attribs(2,j))
              if (trim(attribs(1,j))=="scaledValueOfFirstFixedSurface") var(i)%sValue_FFS=val(attribs(2,j))
              if (trim(attribs(1,j))=="timeInterval") var(i)%time_interval=val(attribs(2,j))
+             if (trim(attribs(1,j))=="typeOfStatisticalProcessing") var(i)%StatisticalP=val(attribs(2,j))
+	     if (bitsPerValue_in==0) then 
+		     if (trim(attribs(1,j))=="bitsPerValue") var(i)%bitsPerValue=val(attribs(2,j))
+             end if 
              nvar=i
         enddo
 
-      end if
+      end if !}
      !write(*,*) (j,'>',trim(data(j)),'<',j=1,no_data)
 
      if (.not. xml_ok(info)) exit
-    enddo !
+    enddo !}
+    
   endif
   call xml_close(info)
   end subroutine
 
 
- !--------------------------------------------------------
- ! Creates the fist of variable to be extracted from grib
- !---------------------------------------------------------
- subroutine init_parm_grib2(humidity_parm)
-    integer,optional,intent(in)::humidity_parm
-    integer::i,hp
-
-    i=0
-    i=i+1
-    var(i)%Discipline=0
-    var(i)%pCat=3
-    var(i)%pNum=1
-    var(i)%tflevel=101
-    var(i)%cfVarName="prmsl"
-    var(i)%VarName="Pressure reduced to MSL  (Pa)  (grib2/tables/2/4.2.0.3.table)"
-
-    i=i+1
-    var(i)%Discipline=0
-    var(i)%pCat=3
-    var(i)%pNum=5
-    var(i)%tflevel=1
-    var(i)%cfVarName="topo"
-    var(i)%VarName="Surface Geopotential height  (gpm)"
-
-    i=i+1
-    var(i)%Discipline=0
-    var(i)%pCat=3
-    var(i)%pNum=0
-    var(i)%tflevel=1
-    var(i)%cfVarName="sp"
-    var(i)%VarName="Surface pressure (PA)"
-
-    i=i+1
-    var(i)%Discipline=0
-    var(i)%pCat=3
-    var(i)%pNum=5
-    var(i)%tflevel=100      !Isobaric surface  (Pa)  (grib2/tables/2/4.5.table , grib2/tables/local/kwbc/1/4.5.table)
-    var(i)%cfVarName="gh"
-    var(i)%VarName="Geopotential height  (gpm)  (grib2/tables/2/4.2.0.3.table)"
-
-    i=i+1
-    var(i)%Discipline=0
-    var(i)%pCat=0
-    var(i)%pNum=0
-    var(i)%tflevel=100
-    var(i)%cfVarName="t"
-    var(i)%VarName="Temperature  (K)  (grib2/tables/2/4.2.0.0.table)"
-
-    if (present (humidity_parm)) then
-        hp=humidity_parm
-    else
-        hp=-1
-    end if
-
-    if ((hp==0).or.(hp==-1)) then
-	i=i+1
-	var(i)%Discipline=0
-	var(i)%pCat=1
-	var(i)%pNum=0
-	var(i)%tflevel=100
-	var(i)%cfVarName="q"
-	var(i)%VarName="Specific humidity  (kg kg-1)  (grib2/tables/2/4.2.0.1.table)"
-    end if
-
-    if ((hp>0).or.(hp==-1)) then
-	i=i+1
-	var(i)%Discipline=0
-	var(i)%pCat=1
-	var(i)%pNum=1
-	var(i)%tflevel=100
-	var(i)%cfVarName="rh"
-	var(i)%VarName="Relative humidity  (%)  (grib2/tables/1/4.2.0.1.table)"
-    end if
-
-    i=i+1
-    var(i)%Discipline=0
-    var(i)%pCat=2
-    var(i)%pNum=8
-    var(i)%tflevel=100
-    var(i)%cfVarName="w"
-    var(i)%VarName="Vertical velocity (pressure)  (Pa s-1)  (grib2/tables/2/4.2.0.2.table)"
-
-    i=i+1
-    var(i)%Discipline=0
-    var(i)%pCat=2
-    var(i)%pNum=2
-    var(i)%tflevel=100
-    var(i)%cfVarName="u"
-    var(i)%VarName="u-component of wind  (m s-1)  (grib2/tables/2/4.2.0.2.table)"
-
-    i=i+1
-    var(i)%Discipline=0
-    var(i)%pCat=2
-    var(i)%pNum=3
-    var(i)%tflevel=100
-    var(i)%cfVarName="v"
-    var(i)%VarName="v-component of wind  (m s-1)  (grib2/tables/2/4.2.0.2.table)"
-
-
-
- end subroutine
-
- !--------------------------------------------------------
- ! Creates the fist of variable to be extracted from grib
- !-----------------------------------------------------------
- subroutine init_parm_grib1
-    integer :: i
-    i=0
-
-    i=i+1
-    var(i)%pNum=2 !
-    var(i)%tflevel=102 !Sea Level Pressure (hPA)
-    var(i)%cfVarName="prmsl"
-    var(i)%VarName="Pressure reduced to MSL  (hPa) "
-
-    i=i+1
-    var(i)%pNum=132   ! 132 = topografia
-    var(i)%tflevel=1  !"1=surface (of the Earth, which includes sea surface)  (grib1/3.table)
-    var(i)%cfVarName="topo"
-    var(i)%VarName="Surface Geopotential height  (gpm)"
-
-    i=i+1
-    var(i)%pNum=135  !pslc SURFACE PRESSURE [hPa] (grib1/2.46.254.table)  <<<<<**** hPa
-    var(i)%tflevel=1
-    var(i)%cfVarName="sp"
-    var(i)%VarName="Surface pressure (PA)"
-    psup_id=i
-
-    i=i+1
-    var(i)%pNum=7        !zgeo Geopotential height [gpm] (grib1/2.46.254.table)
-    var(i)%tflevel=100
-    var(i)%cfVarName="gh"
-    var(i)%VarName="Geopotential height  (gpm)  (grib2/tables/2/4.2.0.3.table)"
-
-    i=i+1
-    var(i)%pNum=11
-    var(i)%tflevel=100
-    var(i)%cfVarName="t"
-    var(i)%VarName="Temperature  (K)  (grib2/tables/2/4.2.0.0.table)"
-
-    i=i+1
-    var(i)%pNum=51
-    var(i)%tflevel=100
-    var(i)%cfVarName="q"
-    var(i)%VarName="Specific humidity  (kg kg-1) "
-
-    i=i+1
-    var(i)%pNum=39     ! omeg OMEGA [Pa/s] (grib1/2.46.254.table)
-    var(i)%tflevel=100
-    var(i)%cfVarName="w"
-    var(i)%VarName="Vertical velocity (pressure)  (Pa s-1) "
-
-    i=i+1
-    var(i)%pNum=33   ! IndicatorOfParameter=33   uvel ZONAL WIND  (U)
-    var(i)%tflevel=100
-    var(i)%cfVarName="u"
-    var(i)%VarName="u-component of wind  (m s-1) (grib1/2.46.254.table)"
-
-    i=i+1
-    var(i)%pNum=34       !vvel MERIDIONAL WIND  (V)  (grib1/2.46.254.table)
-    var(i)%tflevel=100   !100-Isobaric level pressure in hectoPascals (hPa)
-    var(i)%cfVarName="v"
-    var(i)%VarName="v-component of wind  (m s-1)  (grib1/2.46.254.table)"
-
-
-    ! 43 Vorticity
-    ! 35 Stream Function
-    ! 36 Velocidade Potencial
-
-!topo  0 132,1,0 ** surface TOPOGRAPHY [m]
-!lsmk  0  81,1,0 ** surface LAND SEA MASK [0,1]
-!PSLC    0  135,    1,    0  ** sfc    SURFACE PRESSURE                        (HPA             )
-!UVES    0  192,    1,    0  ** sfc    SURFACE ZONAL WIND (U)                  (M/S             )
-!UVEL   33   33,  100,    0  **        ZONAL WIND (U)                          (M/S             )
-!VVES    0  194,    1,    0  ** sfc    SURFACE MERIDIONAL WIND (V)             (M/S             )
-!VVEL   33   34,  100,    0  **        MERIDIONAL WIND (V)                     (M/S             )
-!OMEG   33   39,  100,    0  **        OMEGA                                   (PA/S            )
-!VORT   33   43,  100,    0  **        VORTICITY                               (1/S             )
-!FCOR   33   35,  100,    0  **        STREAM FUNCTION                         (M2/S            )
-!POTV   33   36,  100,    0  **        VELOCITY POTENTIAL                      (M2/S            )
-!ZGEO   33    7,  100,    0  **        GEOPOTENTIAL HEIGHT                     (GPM             )
-!PSNM    0    2,  102,    0  ** msl    SEA LEVEL PRESSURE                      (HPA             )
-!TEMS    0  188,    1,    0  ** sfc    SURFACE ABSOLUTE TEMPERATURE            (K               )
-!TEMP   33   11,  100,    0  **        ABSOLUTE TEMPERATURE                    (K               )
-!UMRS    0  226,    1,    0  ** sfc    SURFACE RELATIVE HUMIDITY               (NO DIM          )
-!UMRL   33   52,  100,    0  **        RELATIVE HUMIDITY                       (NO DIM          )
-!UMES   33   51,  100,    0  **        SPECIFIC HUMIDITY                       (KG/KG           )
-!AGPL    0   54,  200,    0  ** atm    INST. PRECIPITABLE WATER                (KG/M2           )
-!TSFC    0  187,    1,    0  ** sfc    SURFACE TEMPERATURE                     (K               )
-!DSTP    0   85,  112,    0  ** landt  DEEP SOIL TEMPERATURE                   (K               )
-
- end subroutine
 
  subroutine read_grib_tables
     character(len=1)::t1
@@ -364,31 +279,6 @@ subroutine init_parm2(parm_table)
 222 continue
 close(33)
 
-
-!Code tables#
-!  CODE TABLE 4.0, Product Definition Template Number
-!# CODE TABLE 4.1, Category of parameters by product discipline
-!    0 0 Temperature
-!    0 1 Moisture
-!    0 2 Momentum (wind)
-!    0 3 Mass
-!    0 4 Short Wave Radiation
-!    0 5 Long  Wave Radiationm
-!    0 6 Cloud
-!    0 7 Thermodynamic Stability Indices
-!    0 13 Aerosols
-!    0 14 Trace Gases
-!    0 15 Radar
-!    0 18 Nuclear Radiology4.2.0.14.table
-!    0 19 Physical atmospheric properties
-!    0
-!# CODE TABLE 4.2.Discipline.Category{ see table 4.1)?!!
-
-!    # Product Discipline 0: Meteorological products, Parameter Category 4: Short-wave Radiation
-!# CODE TABLE 4.3, Type of generating process
-!# CODE TABLE 4.3, Type of generating process
-!# Code table 4.5: Fixed surface types and units
-!# CODE TABLE 4.6, Type of ensemble forecas
 
 
  end subroutine
